@@ -76,31 +76,16 @@ export class PaddleService {
     }
 
     try {
-      // Set environment to sandbox first - this is critical for Vercel
+      // Set environment to sandbox first
       window.Paddle.Environment.set('sandbox');
       
-      // Get the current domain for Vercel deployment
-      const currentDomain = window.location.origin;
-      console.log('Current domain for Paddle:', currentDomain);
-      
-      // Initialize Paddle.js with Vercel-specific configuration
+      // Simple initialization - no complex event callbacks
       window.Paddle.Initialize({
         token: clientToken,
-        debug: true, // Enable debug for Vercel sandbox
-        eventCallback: (data: any) => {
-          console.log('Paddle event:', data);
-          // Handle specific events
-          if (data.name === 'checkout.loaded') {
-            console.log('Paddle checkout loaded successfully on Vercel');
-          } else if (data.name === 'checkout.error') {
-            console.error('Paddle checkout error:', data);
-          } else if (data.name === 'checkout.initialized') {
-            console.log('Paddle checkout initialized for Vercel domain:', currentDomain);
-          }
-        }
+        debug: true
       });
       
-      console.log('Paddle initialized successfully in sandbox mode for Vercel');
+      console.log('Paddle initialized successfully in sandbox mode');
       this.isInitialized = true;
     } catch (error) {
       console.error('Failed to initialize Paddle:', error);
@@ -115,17 +100,16 @@ export class PaddleService {
 
     return new Promise((resolve, reject) => {
       try {
-        // Use proper Paddle.js checkout as per documentation
-        console.log('Opening Paddle checkout with proper API for Vercel...');
+        console.log('Opening Paddle checkout with correct API...');
         
-        // Ensure we're in sandbox mode before opening checkout
+        // Ensure we're in sandbox mode
         window.Paddle.Environment.set('sandbox');
         
-        // Get current domain for Vercel
         const currentDomain = window.location.origin;
-        console.log('Using Vercel domain for checkout:', currentDomain);
+        console.log('Using domain for checkout:', currentDomain);
         
-        const paddleCheckoutData = {
+        // Use the correct Paddle.js v2 API format
+        const checkoutConfig = {
           items: [
             {
               priceId: 'pro_01k4gbm9hqgtbz0462wxnjpdbk',
@@ -133,11 +117,7 @@ export class PaddleService {
             }
           ],
           customer: checkoutData.customer,
-          customData: {
-            ...checkoutData.customData,
-            vercelDomain: currentDomain,
-            deployment: 'vercel-sandbox'
-          },
+          customData: checkoutData.customData,
           successUrl: checkoutData.successUrl || `${currentDomain}/success`,
           closeUrl: checkoutData.closeUrl || `${currentDomain}/failed`,
           settings: {
@@ -147,45 +127,19 @@ export class PaddleService {
           }
         };
 
-        console.log('Paddle checkout data for Vercel:', JSON.stringify(paddleCheckoutData, null, 2));
+        console.log('Paddle checkout config:', JSON.stringify(checkoutConfig, null, 2));
 
-        // Use Paddle.Checkout.open() with event callback
-        const checkoutConfig = {
-          ...paddleCheckoutData,
-          eventCallback: (data: any) => {
-            console.log('Paddle checkout event on Vercel:', data);
-            
-            // Handle different event types
-            if (data && data.name) {
-              if (data.name === 'checkout.completed') {
-                console.log('Checkout completed on Vercel:', data);
-                resolve();
-              } else if (data.name === 'checkout.closed') {
-                console.log('Checkout closed on Vercel:', data);
-                reject(new Error('Checkout was closed'));
-              } else if (data.name === 'checkout.error') {
-                console.error('Checkout error on Vercel:', data);
-                reject(new Error(data.error?.message || 'Checkout failed on Vercel'));
-              } else if (data.name === 'checkout.loaded') {
-                console.log('Checkout loaded successfully on Vercel');
-              }
-            } else {
-              console.log('Paddle event received (no name):', data);
-            }
-          }
-        };
-
-        // Use Paddle.Checkout.open() as per documentation
+        // Use the correct Paddle.js v2 API
         window.Paddle.Checkout.open(checkoutConfig);
         
-        // Set timeout in case checkout doesn't complete
+        // Simple timeout - no complex event handling
         setTimeout(() => {
-          console.log('Checkout timeout on Vercel - assuming user closed checkout');
-          reject(new Error('Checkout timeout - user may have closed checkout'));
-        }, 300000); // 5 minutes timeout
+          console.log('Checkout opened - user can complete payment');
+          resolve(); // Resolve immediately after opening
+        }, 1000);
         
       } catch (error) {
-        console.error('Failed to open Paddle checkout on Vercel:', error);
+        console.error('Failed to open Paddle checkout:', error);
         reject(error);
       }
     });
