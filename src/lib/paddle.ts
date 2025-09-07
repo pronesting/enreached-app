@@ -50,10 +50,11 @@ export class PaddleService {
         return;
       }
 
-      // Load Paddle.js script
+      // Load Paddle.js script with proper error handling
       const script = document.createElement('script');
       script.src = 'https://cdn.paddle.com/paddle/v2/paddle.js';
       script.async = true;
+      script.crossOrigin = 'anonymous';
       
       script.onload = () => {
         this.initializePaddle();
@@ -116,7 +117,7 @@ export class PaddleService {
           items: [
             {
               priceId: 'pro_01k4gbm9hqgtbz0462wxnjpdbk',
-              quantity: checkoutData.items[0]?.quantity || 1,
+              quantity: Math.min(checkoutData.items[0]?.quantity || 1, 100), // Limit quantity for testing
             }
           ],
           customer: checkoutData.customer,
@@ -140,6 +141,10 @@ export class PaddleService {
             } else if (data.name === 'checkout.error') {
               console.error('Checkout error:', data);
               reject(new Error(data.error?.message || 'Checkout failed'));
+            } else if (data.name === 'checkout.loaded') {
+              console.log('Checkout loaded successfully');
+            } else {
+              console.log('Other checkout event:', data);
             }
           }
         };
