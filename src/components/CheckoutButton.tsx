@@ -77,7 +77,7 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
       
       // For Vercel deployment, show specific error message
       if (errorMessage.includes('400') || errorMessage.includes('domain')) {
-        setError(`Domain approval needed for Vercel deployment. Please add ${window.location.origin} to your Paddle dashboard approved domains.`);
+        setError(`Domain approval needed! Please add ${window.location.origin} to your Paddle dashboard approved domains. Check PADDLE_DOMAIN_APPROVAL_FIX.md for instructions.`);
       } else {
         setError(errorMessage);
       }
@@ -159,13 +159,15 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
                 <p>{error}</p>
                 {error.includes('Domain approval') && (
                   <div className="mt-2 text-xs">
-                    <p className="font-semibold">To fix this:</p>
+                    <p className="font-semibold text-red-700">🚨 URGENT: Domain Approval Required</p>
                     <ol className="list-decimal list-inside mt-1 space-y-1">
-                      <li>Go to <a href="https://vendors.paddle.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Paddle Dashboard</a></li>
-                      <li>Navigate to Settings → Checkout</li>
-                      <li>Add <code className="bg-gray-100 px-1 rounded">{window.location.origin}</code> to Approved Domains</li>
-                      <li>Refresh this page and try again</li>
+                      <li>Go to <a href="https://vendors.paddle.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">Paddle Dashboard</a></li>
+                      <li>Navigate to <strong>Settings → Checkout</strong></li>
+                      <li>Add <code className="bg-gray-100 px-1 rounded font-mono">{window.location.origin}</code> to <strong>Approved Domains</strong></li>
+                      <li>Set <strong>Default Payment Link</strong> to: <code className="bg-gray-100 px-1 rounded font-mono">{window.location.origin}/success</code></li>
+                      <li>Save settings and refresh this page</li>
                     </ol>
+                    <p className="mt-2 text-red-600 font-semibold">This is the #1 cause of 400 errors with Paddle!</p>
                   </div>
                 )}
               </div>
