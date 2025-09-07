@@ -112,27 +112,19 @@ export class PaddleService {
         const currentDomain = window.location.origin;
         console.log('Using domain for checkout:', currentDomain);
         
-        // Use the official Paddle.js API format according to documentation
+        // Use minimal configuration to avoid 400 errors
         const checkoutConfig = {
           items: [
             {
-              priceId: 'pri_01k4hym2hjn2tyrp6m64kre8r7', // Your new price ID
-              quantity: checkoutData.items[0]?.quantity || 1, // Use actual quantity
-              customData: {
-                dataType: checkoutData.customData?.dataType || 'data',
-                listName: checkoutData.customData?.listName || 'list'
-              }
+              priceId: 'pri_01k4hym2hjn2tyrp6m64kre8r7',
+              quantity: 1 // Start with quantity 1 for testing
             }
           ],
-          customer: checkoutData.customer,
-          customData: checkoutData.customData,
-          successUrl: checkoutData.successUrl || `${currentDomain}/success`,
-          closeUrl: checkoutData.closeUrl || `${currentDomain}/failed`,
-          settings: {
-            theme: 'light',
-            displayMode: 'overlay',
-            allowLogout: true,
+          customer: {
+            email: checkoutData.customer?.email || 'test@example.com'
           },
+          successUrl: `${currentDomain}/success`,
+          closeUrl: `${currentDomain}/failed`,
           eventCallback: (data: any) => {
             console.log('Checkout event:', data);
             
