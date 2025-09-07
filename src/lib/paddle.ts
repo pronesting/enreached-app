@@ -123,7 +123,7 @@ export class PaddleService {
         const checkoutConfig = {
           items: [
             {
-              priceId: 'pro_01k4gbm9hqgtbz0462wxnjpdbk',
+              priceId: 'pri_01k4hym2hjn2tyrp6m64kre8r7', // Your new price ID
               quantity: Math.min(checkoutData.items[0]?.quantity || 1, 100), // Limit quantity for testing
             }
           ],
