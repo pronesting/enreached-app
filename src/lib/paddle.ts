@@ -112,43 +112,23 @@ export class PaddleService {
         const currentDomain = window.location.origin;
         console.log('Using domain for checkout:', currentDomain);
         
-        // Test with a different approach - try to get price preview first
-        console.log('Testing price ID validity...');
-        
-        // First, let's try to get a price preview to validate the price ID
-        try {
-          const pricePreview = await new Promise((resolve, reject) => {
-            window.Paddle.PricePreview({
-              items: [{ priceId: 'pri_01k4hym2hjn2tyrp6m64kre8r7', quantity: 1 }],
-              callback: (data: any) => {
-                if (data.error) {
-                  console.error('Price preview error:', data.error);
-                  reject(data.error);
-                } else {
-                  console.log('Price preview success:', data);
-                  resolve(data);
-                }
-              }
-            });
-          });
-        } catch (error) {
-          console.error('Price ID validation failed:', error);
-          throw new Error('Invalid price ID: ' + error);
-        }
-
-        // Use minimal configuration to avoid 400 errors
+        // Use the working configuration from before
         const checkoutConfig = {
           items: [
             {
               priceId: 'pri_01k4hym2hjn2tyrp6m64kre8r7',
-              quantity: 1
+              quantity: checkoutData.items[0]?.quantity || 1
             }
           ],
-          customer: {
-            email: checkoutData.customer?.email || 'test@example.com'
+          customer: checkoutData.customer,
+          customData: checkoutData.customData,
+          successUrl: checkoutData.successUrl || `${currentDomain}/success`,
+          closeUrl: checkoutData.closeUrl || `${currentDomain}/failed`,
+          settings: {
+            theme: 'light',
+            displayMode: 'overlay',
+            allowLogout: true,
           },
-          successUrl: `${currentDomain}/success`,
-          closeUrl: `${currentDomain}/failed`,
           eventCallback: (data: any) => {
             console.log('Checkout event:', data);
             
