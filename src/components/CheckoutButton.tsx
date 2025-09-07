@@ -68,7 +68,7 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
       
       // If we reach here, checkout was successful
       onCheckout();
-      window.location.href = '/success';
+      // Don't redirect - Paddle will handle redirects via successUrl/closeUrl
       
     } catch (err) {
       console.error('Checkout error on Vercel:', err);

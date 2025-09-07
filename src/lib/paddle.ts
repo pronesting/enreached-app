@@ -132,11 +132,15 @@ export class PaddleService {
         // Use the correct Paddle.js v2 API
         window.Paddle.Checkout.open(checkoutConfig);
         
-        // Simple timeout - no complex event handling
+        // Don't resolve immediately - let the checkout process handle it
+        // The checkout will redirect to success/failed URLs automatically
+        console.log('Checkout opened - waiting for user to complete payment');
+        
+        // Set a long timeout as fallback
         setTimeout(() => {
-          console.log('Checkout opened - user can complete payment');
-          resolve(); // Resolve immediately after opening
-        }, 1000);
+          console.log('Checkout timeout - user may have closed checkout');
+          reject(new Error('Checkout timeout'));
+        }, 300000); // 5 minutes
         
       } catch (error) {
         console.error('Failed to open Paddle checkout:', error);
