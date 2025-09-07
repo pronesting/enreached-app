@@ -129,7 +129,7 @@ export default function TestCheckoutPage() {
             <div className="text-xs text-gray-500 text-center">
               <p>This is a test checkout page for demonstration purposes.</p>
               <p className="mt-1">
-                In production, this would redirect to Paddle's secure checkout.
+                In production, this would redirect to Paddle&apos;s secure checkout.
               </p>
             </div>
           </CardContent>

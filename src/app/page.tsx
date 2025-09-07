@@ -194,7 +194,7 @@ export default function Home() {
             <CardContent className="text-center space-y-4">
               <p className="text-lg font-medium">Thank you for your order!</p>
               <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold text-gray-800 mb-2">We're Working on It!</h3>
+                <h3 className="font-semibold text-gray-800 mb-2">We&apos;re Working on It!</h3>
                 <p className="text-sm text-gray-600">
                   Our team is processing your data and will deliver the complete report to your email within 24-48 hours.
                 </p>
