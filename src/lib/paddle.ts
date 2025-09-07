@@ -87,7 +87,6 @@ export class PaddleService {
       window.Paddle.Initialize({
         token: clientToken,
         debug: true, // Enable debug for Vercel sandbox
-        environment: 'sandbox',
         eventCallback: (data: any) => {
           console.log('Paddle event:', data);
           // Handle specific events
@@ -150,35 +149,31 @@ export class PaddleService {
 
         console.log('Paddle checkout data for Vercel:', JSON.stringify(paddleCheckoutData, null, 2));
 
-        // Set up event listeners before opening checkout
-        const handleCheckoutEvent = (data: any) => {
-          console.log('Paddle checkout event on Vercel:', data);
-          
-          if (data.name === 'checkout.completed') {
-            console.log('Checkout completed on Vercel:', data);
-            window.Paddle.Event.off('checkout', handleCheckoutEvent);
-            resolve();
-          } else if (data.name === 'checkout.closed') {
-            console.log('Checkout closed on Vercel:', data);
-            window.Paddle.Event.off('checkout', handleCheckoutEvent);
-            reject(new Error('Checkout was closed'));
-          } else if (data.name === 'checkout.error') {
-            console.error('Checkout error on Vercel:', data);
-            window.Paddle.Event.off('checkout', handleCheckoutEvent);
-            reject(new Error(data.error?.message || 'Checkout failed on Vercel'));
+        // Use Paddle.Checkout.open() with event callback
+        const checkoutConfig = {
+          ...paddleCheckoutData,
+          eventCallback: (data: any) => {
+            console.log('Paddle checkout event on Vercel:', data);
+            
+            if (data.name === 'checkout.completed') {
+              console.log('Checkout completed on Vercel:', data);
+              resolve();
+            } else if (data.name === 'checkout.closed') {
+              console.log('Checkout closed on Vercel:', data);
+              reject(new Error('Checkout was closed'));
+            } else if (data.name === 'checkout.error') {
+              console.error('Checkout error on Vercel:', data);
+              reject(new Error(data.error?.message || 'Checkout failed on Vercel'));
+            }
           }
         };
 
-        // Listen for checkout events
-        window.Paddle.Event.on('checkout', handleCheckoutEvent);
-
         // Use Paddle.Checkout.open() as per documentation
-        window.Paddle.Checkout.open(paddleCheckoutData);
+        window.Paddle.Checkout.open(checkoutConfig);
         
         // Set timeout in case checkout doesn't complete
         setTimeout(() => {
           console.log('Checkout timeout on Vercel - assuming user closed checkout');
-          window.Paddle.Event.off('checkout', handleCheckoutEvent);
           reject(new Error('Checkout timeout - user may have closed checkout'));
         }, 300000); // 5 minutes timeout
         
