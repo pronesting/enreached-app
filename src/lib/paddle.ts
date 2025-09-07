@@ -106,9 +106,6 @@ export class PaddleService {
       try {
         console.log('Opening Paddle checkout with official API...');
         
-        // Ensure we're in sandbox mode
-        window.Paddle.Environment.set('sandbox');
-        
         const currentDomain = window.location.origin;
         console.log('Using domain for checkout:', currentDomain);
         
