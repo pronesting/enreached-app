@@ -84,7 +84,6 @@ export class PaddleService {
       window.Paddle.Initialize({
         token: clientToken,
         debug: true,
-        environment: 'sandbox',
         eventCallback: (data: any) => {
           console.log('Paddle event:', data);
         }
@@ -118,7 +117,11 @@ export class PaddleService {
           items: [
             {
               priceId: 'pri_01k4hym2hjn2tyrp6m64kre8r7', // Your new price ID
-              quantity: Math.min(checkoutData.items[0]?.quantity || 1, 100), // Limit quantity for testing
+              quantity: checkoutData.items[0]?.quantity || 1, // Use actual quantity
+              customData: {
+                dataType: checkoutData.customData?.dataType || 'data',
+                listName: checkoutData.customData?.listName || 'list'
+              }
             }
           ],
           customer: checkoutData.customer,
