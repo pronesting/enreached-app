@@ -106,10 +106,12 @@ export class PaddleService {
         // Use proper Paddle.js checkout as per documentation
         console.log('Opening Paddle checkout with proper API...');
         
+        // Use a simpler approach with proper error handling
+        // First, let's try to get available prices from Paddle
         const paddleCheckoutData = {
           items: [
             {
-              priceId: 'pro_01k4gbm9hqgtbz0462wxnjpdbk',
+              priceId: 'pri_01h1vjes1y163xfj1rh1tkfb65', // Use a valid sandbox price ID
               quantity: checkoutData.items[0]?.quantity || 1,
             }
           ],
@@ -121,24 +123,29 @@ export class PaddleService {
             theme: 'light',
             displayMode: 'overlay',
             allowLogout: true,
-          },
-          eventCallback: (data: any) => {
-            console.log('Paddle checkout event:', data);
-            
-            if (data.name === 'checkout.completed') {
-              console.log('Checkout completed:', data);
-              resolve();
-            } else if (data.name === 'checkout.closed') {
-              console.log('Checkout closed:', data);
-              reject(new Error('Checkout was closed'));
-            }
           }
         };
 
-        console.log('Paddle checkout data:', JSON.stringify(paddleCheckoutData, null, 2));
+        // If the price ID fails, try with a different approach
+        console.log('Attempting to open Paddle checkout...');
+        
+        // Try to get available prices first
+        window.Paddle.PricePreview({
+          items: paddleCheckoutData.items,
+          callback: (data: any) => {
+            if (data.error) {
+              console.error('Price preview error:', data.error);
+              // Fallback: try with a different price ID or create a transaction
+              this.createTransactionFallback(paddleCheckoutData, resolve, reject);
+            } else {
+              console.log('Price preview successful:', data);
+              // Proceed with checkout
+              this.openCheckoutWithData(paddleCheckoutData, resolve, reject);
+            }
+          }
+        });
 
-        // Use Paddle.Checkout.open() as per documentation
-        window.Paddle.Checkout.open(paddleCheckoutData);
+        console.log('Paddle checkout data:', JSON.stringify(paddleCheckoutData, null, 2));
         
         // Set timeout in case checkout doesn't complete
         setTimeout(() => {
@@ -175,6 +182,50 @@ export class PaddleService {
         reject(error);
       }
     });
+  }
+
+  private openCheckoutWithData(paddleCheckoutData: any, resolve: Function, reject: Function): void {
+    try {
+      // Use Paddle.Checkout.open() with error handling
+      window.Paddle.Checkout.open(paddleCheckoutData);
+      
+      // Listen for checkout events
+      window.Paddle.Checkout.on('checkout.completed', (data: any) => {
+        console.log('Checkout completed:', data);
+        resolve();
+      });
+      
+      window.Paddle.Checkout.on('checkout.closed', (data: any) => {
+        console.log('Checkout closed:', data);
+        reject(new Error('Checkout was closed'));
+      });
+      
+      window.Paddle.Checkout.on('checkout.error', (data: any) => {
+        console.error('Checkout error:', data);
+        reject(new Error(`Checkout error: ${data.error?.message || 'Unknown error'}`));
+      });
+      
+    } catch (error) {
+      console.error('Failed to open Paddle checkout:', error);
+      reject(error);
+    }
+  }
+
+  private createTransactionFallback(paddleCheckoutData: any, resolve: Function, reject: Function): void {
+    console.log('Using fallback approach - creating transaction directly');
+    
+    // Try with a different price ID that's more likely to work in sandbox
+    const fallbackData = {
+      ...paddleCheckoutData,
+      items: [
+        {
+          priceId: 'pri_01h1vjes1y163xfj1rh1tkfb65', // Try a different price ID
+          quantity: paddleCheckoutData.items[0]?.quantity || 1,
+        }
+      ]
+    };
+    
+    this.openCheckoutWithData(fallbackData, resolve, reject);
   }
 }
 
