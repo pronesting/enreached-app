@@ -155,15 +155,22 @@ export class PaddleService {
           eventCallback: (data: any) => {
             console.log('Paddle checkout event on Vercel:', data);
             
-            if (data.name === 'checkout.completed') {
-              console.log('Checkout completed on Vercel:', data);
-              resolve();
-            } else if (data.name === 'checkout.closed') {
-              console.log('Checkout closed on Vercel:', data);
-              reject(new Error('Checkout was closed'));
-            } else if (data.name === 'checkout.error') {
-              console.error('Checkout error on Vercel:', data);
-              reject(new Error(data.error?.message || 'Checkout failed on Vercel'));
+            // Handle different event types
+            if (data && data.name) {
+              if (data.name === 'checkout.completed') {
+                console.log('Checkout completed on Vercel:', data);
+                resolve();
+              } else if (data.name === 'checkout.closed') {
+                console.log('Checkout closed on Vercel:', data);
+                reject(new Error('Checkout was closed'));
+              } else if (data.name === 'checkout.error') {
+                console.error('Checkout error on Vercel:', data);
+                reject(new Error(data.error?.message || 'Checkout failed on Vercel'));
+              } else if (data.name === 'checkout.loaded') {
+                console.log('Checkout loaded successfully on Vercel');
+              }
+            } else {
+              console.log('Paddle event received (no name):', data);
             }
           }
         };

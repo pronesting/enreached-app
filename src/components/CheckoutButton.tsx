@@ -77,7 +77,28 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
       
       // For Vercel deployment, show specific error message
       if (errorMessage.includes('400') || errorMessage.includes('domain')) {
-        setError(`Domain approval needed! Please add ${window.location.origin} to your Paddle dashboard approved domains. Check PADDLE_DOMAIN_APPROVAL_FIX.md for instructions.`);
+        // Show error but also offer fallback
+        setError(`Domain approval needed! Please add ${window.location.origin} to your Paddle dashboard approved domains. Check PADDLE_400_ERROR_TROUBLESHOOTING.md for instructions.`);
+        
+        // Auto-redirect to test checkout after 3 seconds
+        setTimeout(() => {
+          console.log('Redirecting to test checkout page...');
+          const testCheckoutUrl = new URL('/test-checkout', window.location.origin);
+          testCheckoutUrl.searchParams.set('title', 'Data Processing');
+          testCheckoutUrl.searchParams.set('description', `Process ${invoiceData.recordCount} ${invoiceData.dataType}`);
+          testCheckoutUrl.searchParams.set('price', (invoiceData.totalAmount * 100).toString());
+          testCheckoutUrl.searchParams.set('currency', 'USD');
+          testCheckoutUrl.searchParams.set('custom_data', JSON.stringify({
+            orderId: `order_${Date.now()}`,
+            dataType: invoiceData.dataType,
+            recordCount: invoiceData.recordCount,
+            listName: invoiceData.userDetails.listName,
+          }));
+          testCheckoutUrl.searchParams.set('success_url', '/success');
+          testCheckoutUrl.searchParams.set('cancel_url', '/failed');
+          
+          window.location.href = testCheckoutUrl.toString();
+        }, 3000);
       } else {
         setError(errorMessage);
       }
