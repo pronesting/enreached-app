@@ -76,13 +76,16 @@ export class PaddleService {
     }
 
     try {
-      // Set environment to sandbox first
+      // Set environment to sandbox first - this is critical
       window.Paddle.Environment.set('sandbox');
       
-      // Simple initialization - no complex event callbacks
+      // Initialize Paddle.js according to official documentation
       window.Paddle.Initialize({
         token: clientToken,
-        debug: true
+        debug: true,
+        eventCallback: (data: any) => {
+          console.log('Paddle event:', data);
+        }
       });
       
       console.log('Paddle initialized successfully in sandbox mode');
@@ -98,48 +101,67 @@ export class PaddleService {
       await this.initialize();
     }
 
-    try {
-      console.log('Opening Paddle checkout with correct API...');
-      
-      // Ensure we're in sandbox mode
-      window.Paddle.Environment.set('sandbox');
-      
-      const currentDomain = window.location.origin;
-      console.log('Using domain for checkout:', currentDomain);
-      
-      // Use the correct Paddle.js v2 API format
-      const checkoutConfig = {
-        items: [
-          {
-            priceId: 'pro_01k4gbm9hqgtbz0462wxnjpdbk',
-            quantity: checkoutData.items[0]?.quantity || 1,
+    return new Promise((resolve, reject) => {
+      try {
+        console.log('Opening Paddle checkout with official API...');
+        
+        // Ensure we're in sandbox mode
+        window.Paddle.Environment.set('sandbox');
+        
+        const currentDomain = window.location.origin;
+        console.log('Using domain for checkout:', currentDomain);
+        
+        // Use the official Paddle.js API format according to documentation
+        const checkoutConfig = {
+          items: [
+            {
+              priceId: 'pro_01k4gbm9hqgtbz0462wxnjpdbk',
+              quantity: checkoutData.items[0]?.quantity || 1,
+            }
+          ],
+          customer: checkoutData.customer,
+          customData: checkoutData.customData,
+          successUrl: checkoutData.successUrl || `${currentDomain}/success`,
+          closeUrl: checkoutData.closeUrl || `${currentDomain}/failed`,
+          settings: {
+            theme: 'light',
+            displayMode: 'overlay',
+            allowLogout: true,
+          },
+          eventCallback: (data: any) => {
+            console.log('Checkout event:', data);
+            
+            if (data.name === 'checkout.completed') {
+              console.log('Checkout completed successfully');
+              resolve();
+            } else if (data.name === 'checkout.closed') {
+              console.log('Checkout was closed');
+              reject(new Error('Checkout was closed'));
+            } else if (data.name === 'checkout.error') {
+              console.error('Checkout error:', data);
+              reject(new Error(data.error?.message || 'Checkout failed'));
+            }
           }
-        ],
-        customer: checkoutData.customer,
-        customData: checkoutData.customData,
-        successUrl: checkoutData.successUrl || `${currentDomain}/success`,
-        closeUrl: checkoutData.closeUrl || `${currentDomain}/failed`,
-        settings: {
-          theme: 'light',
-          displayMode: 'overlay',
-          allowLogout: true,
-        }
-      };
+        };
 
-      console.log('Paddle checkout config:', JSON.stringify(checkoutConfig, null, 2));
+        console.log('Paddle checkout config:', JSON.stringify(checkoutConfig, null, 2));
 
-      // Use the correct Paddle.js v2 API
-      window.Paddle.Checkout.open(checkoutConfig);
-      
-      console.log('Checkout opened - Paddle will handle redirects');
-      
-      // Don't resolve the promise - let Paddle handle everything
-      // The checkout will redirect to success/failed URLs automatically
-      
-    } catch (error) {
-      console.error('Failed to open Paddle checkout:', error);
-      throw error;
-    }
+        // Use the official Paddle.js API
+        window.Paddle.Checkout.open(checkoutConfig);
+        
+        console.log('Checkout opened - waiting for events');
+        
+        // Set timeout as fallback
+        setTimeout(() => {
+          console.log('Checkout timeout');
+          reject(new Error('Checkout timeout'));
+        }, 300000); // 5 minutes
+        
+      } catch (error) {
+        console.error('Failed to open Paddle checkout:', error);
+        reject(error);
+      }
+    });
   }
 
   public async getPricePreview(items: Array<{ priceId: string; quantity: number }>): Promise<any> {

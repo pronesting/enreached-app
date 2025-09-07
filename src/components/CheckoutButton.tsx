@@ -64,11 +64,11 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
       console.log('Opening Paddle checkout with data:', checkoutData);
 
       // Open real Paddle checkout
-      paddleService.openCheckout(checkoutData);
+      await paddleService.openCheckout(checkoutData);
       
-      // Don't wait for promise - Paddle will handle everything
-      // The checkout will redirect to success/failed URLs automatically
+      // If we reach here, checkout was successful
       onCheckout();
+      // Paddle will handle redirects via successUrl/closeUrl
       
     } catch (err) {
       console.error('Checkout error on Vercel:', err);
