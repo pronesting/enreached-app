@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreditCard, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
@@ -16,6 +16,7 @@ interface CheckoutButtonProps {
 export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showInlineCheckout, setShowInlineCheckout] = useState(false);
   const { isLoaded, isLoading, error: paddleError, paddleService } = usePaddle();
 
   const handleCheckout = async () => {
@@ -29,7 +30,6 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
     
     try {
       // Convert InvoiceData to Paddle checkout format
-      // Using your real Paddle product ID
       const checkoutData: PaddleCheckoutData = {
         items: [
           {
@@ -56,56 +56,46 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
         closeUrl: `${window.location.origin}/failed`,
         settings: {
           theme: 'light' as const,
-          displayMode: 'overlay' as const,
-          allowLogout: true,
+          displayMode: 'inline' as const,
+          allowLogout: false,
+          showAddDiscounts: false,
+          showAddTaxId: false,
         },
       };
 
-      console.log('Opening Paddle checkout with data:', checkoutData);
+      console.log('Rendering Paddle inline checkout with data:', checkoutData);
 
-      // Open real Paddle checkout
-      await paddleService.openCheckout(checkoutData);
+      // Show inline checkout container
+      setShowInlineCheckout(true);
       
-      // If we reach here, checkout was successful
-      onCheckout();
-      // Paddle will handle redirects via successUrl/closeUrl
+      // Render inline checkout
+      await paddleService.renderInlineCheckout(checkoutData, 'paddle-checkout-container');
       
     } catch (err) {
-      console.error('Checkout error on Vercel:', err);
+      console.error('Checkout error:', err);
       
       const errorMessage = err instanceof Error ? err.message : 'Payment failed. Please try again.';
-      
-      // For Vercel deployment, show specific error message
-      if (errorMessage.includes('400') || errorMessage.includes('domain')) {
-        // Show error but also offer fallback
-        setError(`Domain approval needed! Please add ${window.location.origin} to your Paddle dashboard approved domains. Check PADDLE_400_ERROR_TROUBLESHOOTING.md for instructions.`);
-        
-        // Auto-redirect to test checkout after 3 seconds
-        setTimeout(() => {
-          console.log('Redirecting to test checkout page...');
-          const testCheckoutUrl = new URL('/test-checkout', window.location.origin);
-          testCheckoutUrl.searchParams.set('title', 'Data Processing');
-          testCheckoutUrl.searchParams.set('description', `Process ${invoiceData.recordCount} ${invoiceData.dataType}`);
-          testCheckoutUrl.searchParams.set('price', (invoiceData.totalAmount * 100).toString());
-          testCheckoutUrl.searchParams.set('currency', 'USD');
-          testCheckoutUrl.searchParams.set('custom_data', JSON.stringify({
-            orderId: `order_${Date.now()}`,
-            dataType: invoiceData.dataType,
-            recordCount: invoiceData.recordCount,
-            listName: invoiceData.userDetails.listName,
-          }));
-          testCheckoutUrl.searchParams.set('success_url', '/success');
-          testCheckoutUrl.searchParams.set('cancel_url', '/failed');
-          
-          window.location.href = testCheckoutUrl.toString();
-        }, 3000);
-      } else {
-        setError(errorMessage);
-      }
+      setError(errorMessage);
+      setShowInlineCheckout(false);
     } finally {
       setIsProcessing(false);
     }
   };
+
+  // Effect to handle checkout completion
+  useEffect(() => {
+    const handleCheckoutComplete = () => {
+      console.log('Checkout completed successfully');
+      onCheckout();
+    };
+
+    // Listen for checkout completion events
+    window.addEventListener('checkout-completed', handleCheckoutComplete);
+    
+    return () => {
+      window.removeEventListener('checkout-completed', handleCheckoutComplete);
+    };
+  }, [onCheckout]);
 
   if (isLoading) {
     return (
@@ -146,82 +136,109 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto">
-      <CardHeader>
-        <CardTitle className="text-center flex items-center justify-center gap-2">
-          <CreditCard className="h-6 w-6" />
-          Secure Checkout
-        </CardTitle>
-        <p className="text-center text-sm text-gray-600">
-          Complete your payment to process your data
-        </p>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="text-center space-y-4">
-          <div className="p-4 bg-gray-50 rounded-lg">
-            <h3 className="font-semibold text-lg">Ready to Process</h3>
-            <p className="text-sm text-gray-600 mt-1">
-              Your data is ready for processing. Click below to complete your payment.
+    <div className="w-full max-w-4xl mx-auto">
+      {!showInlineCheckout ? (
+        <Card className="w-full max-w-md mx-auto">
+          <CardHeader>
+            <CardTitle className="text-center flex items-center justify-center gap-2">
+              <CreditCard className="h-6 w-6" />
+              Secure Checkout
+            </CardTitle>
+            <p className="text-center text-sm text-gray-600">
+              Complete your payment to process your data
             </p>
-          </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="text-center space-y-4">
+              <div className="p-4 bg-gray-50 rounded-lg">
+                <h3 className="font-semibold text-lg">Ready to Process</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  Your data is ready for processing. Click below to complete your payment.
+                </p>
+              </div>
 
-          <div className="space-y-2 text-sm text-gray-600">
-            <p>✓ Secure payment processing</p>
-            <p>✓ SSL encrypted connection</p>
-            <p>✓ PCI compliant checkout</p>
-          </div>
-        </div>
-
-        {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-            <div className="flex items-center gap-2">
-              <AlertCircle className="h-4 w-4 text-red-500" />
-              <div className="text-sm text-red-600">
-                <p>{error}</p>
-                {error.includes('Domain approval') && (
-                  <div className="mt-2 text-xs">
-                    <p className="font-semibold text-red-700">🚨 URGENT: Domain Approval Required</p>
-                    <ol className="list-decimal list-inside mt-1 space-y-1">
-                      <li>Go to <a href="https://vendors.paddle.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline font-semibold">Paddle Dashboard</a></li>
-                      <li>Navigate to <strong>Settings → Checkout</strong></li>
-                      <li>Add <code className="bg-gray-100 px-1 rounded font-mono">{window.location.origin}</code> to <strong>Approved Domains</strong></li>
-                      <li>Set <strong>Default Payment Link</strong> to: <code className="bg-gray-100 px-1 rounded font-mono">{window.location.origin}/success</code></li>
-                      <li>Save settings and refresh this page</li>
-                    </ol>
-                    <p className="mt-2 text-red-600 font-semibold">This is the #1 cause of 400 errors with Paddle!</p>
-                  </div>
-                )}
+              <div className="space-y-2 text-sm text-gray-600">
+                <p>✓ Secure payment processing</p>
+                <p>✓ SSL encrypted connection</p>
+                <p>✓ PCI compliant checkout</p>
               </div>
             </div>
-          </div>
-        )}
 
-        <Button 
-          onClick={handleCheckout}
-          disabled={isProcessing}
-          className="w-full h-12 text-lg"
-        >
-          {isProcessing ? (
-            <>
-              <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-              Processing Payment...
-            </>
-          ) : (
-            <>
-              <CreditCard className="h-5 w-5 mr-2" />
-              Proceed to Checkout
-            </>
-          )}
-        </Button>
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-500" />
+                  <div className="text-sm text-red-600">
+                    <p>{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
 
-        <div className="text-xs text-gray-500 text-center">
-          <p>By completing this payment, you agree to our terms of service.</p>
-          <p className="mt-1">
-            Your payment information is secure and encrypted.
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+            <Button 
+              onClick={handleCheckout}
+              disabled={isProcessing}
+              className="w-full h-12 text-lg"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                  Loading Checkout...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="h-5 w-5 mr-2" />
+                  Proceed to Checkout
+                </>
+              )}
+            </Button>
+
+            <div className="text-xs text-gray-500 text-center">
+              <p>By completing this payment, you agree to our terms of service.</p>
+              <p className="mt-1">
+                Your payment information is secure and encrypted.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="w-full">
+          <CardHeader>
+            <CardTitle className="text-center flex items-center justify-center gap-2">
+              <CreditCard className="h-6 w-6" />
+              Complete Your Payment
+            </CardTitle>
+            <p className="text-center text-sm text-gray-600">
+              Fill out the form below to complete your secure payment
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div 
+              id="paddle-checkout-container" 
+              className="w-full min-h-[600px] border border-gray-200 rounded-lg"
+            >
+              {isProcessing && (
+                <div className="flex items-center justify-center h-32">
+                  <Loader2 className="h-8 w-8 animate-spin" />
+                  <span className="ml-2">Loading secure checkout...</span>
+                </div>
+              )}
+            </div>
+            
+            {error && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-500" />
+                  <div className="text-sm text-red-600">
+                    <p>{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }
 

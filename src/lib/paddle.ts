@@ -23,6 +23,8 @@ export interface PaddleCheckoutData {
     theme?: 'light' | 'dark' | 'auto';
     locale?: string;
     allowLogout?: boolean;
+    showAddDiscounts?: boolean;
+    showAddTaxId?: boolean;
   };
 }
 
@@ -104,12 +106,12 @@ export class PaddleService {
 
     return new Promise((resolve, reject) => {
       try {
-        console.log('Opening Paddle checkout with official API...');
+        console.log('Opening Paddle inline checkout...');
         
         const currentDomain = window.location.origin;
         console.log('Using domain for checkout:', currentDomain);
         
-        // Use the working configuration from before
+        // Inline checkout configuration with enhanced customization
         const checkoutConfig = {
           items: [
             {
@@ -122,9 +124,15 @@ export class PaddleService {
           successUrl: checkoutData.successUrl || `${currentDomain}/success`,
           closeUrl: checkoutData.closeUrl || `${currentDomain}/failed`,
           settings: {
+            displayMode: 'inline',
+            frameTarget: 'paddle-checkout-container',
+            frameInitialHeight: '600',
+            frameStyle: 'width: 100%; min-width: 312px; background-color: transparent; border: none;',
             theme: 'light',
-            displayMode: 'overlay',
-            allowLogout: true,
+            locale: 'en',
+            allowLogout: false,
+            showAddDiscounts: false,
+            showAddTaxId: false
           },
           eventCallback: (data: any) => {
             console.log('Checkout event:', data);
@@ -146,12 +154,12 @@ export class PaddleService {
           }
         };
 
-        console.log('Paddle checkout config:', JSON.stringify(checkoutConfig, null, 2));
+        console.log('Paddle inline checkout config:', JSON.stringify(checkoutConfig, null, 2));
 
-        // Use the official Paddle.js API
+        // Use the official Paddle.js API for inline checkout
         window.Paddle.Checkout.open(checkoutConfig);
         
-        console.log('Checkout opened - waiting for events');
+        console.log('Inline checkout opened - waiting for events');
         
         // Set timeout as fallback
         setTimeout(() => {
@@ -161,6 +169,81 @@ export class PaddleService {
         
       } catch (error) {
         console.error('Failed to open Paddle checkout:', error);
+        reject(error);
+      }
+    });
+  }
+
+  public async renderInlineCheckout(checkoutData: PaddleCheckoutData, containerId: string): Promise<void> {
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+
+    return new Promise((resolve, reject) => {
+      try {
+        console.log('Rendering Paddle inline checkout in container:', containerId);
+        
+        const currentDomain = window.location.origin;
+        console.log('Using domain for checkout:', currentDomain);
+        
+        // Inline checkout configuration with enhanced customization
+        const checkoutConfig = {
+          items: [
+            {
+              priceId: 'pri_01k4hym2hjn2tyrp6m64kre8r7',
+              quantity: checkoutData.items[0]?.quantity || 1
+            }
+          ],
+          customer: checkoutData.customer,
+          customData: checkoutData.customData,
+          successUrl: checkoutData.successUrl || `${currentDomain}/success`,
+          closeUrl: checkoutData.closeUrl || `${currentDomain}/failed`,
+          settings: {
+            displayMode: 'inline',
+            frameTarget: containerId,
+            frameInitialHeight: '600',
+            frameStyle: 'width: 100%; min-width: 312px; background-color: transparent; border: none;',
+            theme: 'light',
+            locale: 'en',
+            allowLogout: false,
+            showAddDiscounts: false,
+            showAddTaxId: false
+          },
+          eventCallback: (data: any) => {
+            console.log('Checkout event:', data);
+            
+            if (data.name === 'checkout.completed') {
+              console.log('Checkout completed successfully');
+              resolve();
+            } else if (data.name === 'checkout.closed') {
+              console.log('Checkout was closed');
+              reject(new Error('Checkout was closed'));
+            } else if (data.name === 'checkout.error') {
+              console.error('Checkout error:', data);
+              reject(new Error(data.error?.message || 'Checkout failed'));
+            } else if (data.name === 'checkout.loaded') {
+              console.log('Checkout loaded successfully');
+            } else {
+              console.log('Other checkout event:', data);
+            }
+          }
+        };
+
+        console.log('Paddle inline checkout config:', JSON.stringify(checkoutConfig, null, 2));
+
+        // Use the official Paddle.js API for inline checkout
+        window.Paddle.Checkout.open(checkoutConfig);
+        
+        console.log('Inline checkout rendered - waiting for events');
+        
+        // Set timeout as fallback
+        setTimeout(() => {
+          console.log('Checkout timeout');
+          reject(new Error('Checkout timeout'));
+        }, 300000); // 5 minutes
+        
+      } catch (error) {
+        console.error('Failed to render Paddle checkout:', error);
         reject(error);
       }
     });
