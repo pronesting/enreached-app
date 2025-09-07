@@ -50,9 +50,9 @@ export class PaddleService {
         return;
       }
 
-      // Load Paddle.js script with proper error handling
+      // Load Paddle.js v2 script
       const script = document.createElement('script');
-      script.src = 'https://cdn.paddle.com/paddle/paddle.js';
+      script.src = 'https://cdn.paddle.com/paddle/v2/paddle.js';
       script.async = true;
       script.crossOrigin = 'anonymous';
       
@@ -71,7 +71,6 @@ export class PaddleService {
 
   private initializePaddle(): void {
     const clientToken = 'test_ebdda6dcc37ac553c3e8bc3683d';
-    const vendorId = 'ebdda6dcc37ac553c3e8bc3683d'; // Extract vendor ID from client token
     
     if (!clientToken) {
       throw new Error('Paddle client token not found. Please set NEXT_PUBLIC_PADDLE_CLIENT_TOKEN in your environment variables.');
@@ -81,22 +80,17 @@ export class PaddleService {
       // Set environment to sandbox first - this is critical
       window.Paddle.Environment.set('sandbox');
       
-      // Initialize Paddle.js with Setup method first
-      window.Paddle.Setup({
-        vendor: vendorId,
-        debug: true
-      });
-      
-      // Then initialize with token
+      // Initialize Paddle.js v2 with correct format
       window.Paddle.Initialize({
         token: clientToken,
         debug: true,
+        environment: 'sandbox',
         eventCallback: (data: any) => {
           console.log('Paddle event:', data);
         }
       });
       
-      console.log('Paddle initialized successfully in sandbox mode with vendor ID:', vendorId);
+      console.log('Paddle initialized successfully in sandbox mode');
       this.isInitialized = true;
     } catch (error) {
       console.error('Failed to initialize Paddle:', error);
