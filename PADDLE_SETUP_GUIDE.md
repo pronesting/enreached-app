@@ -107,3 +107,4 @@ NEXT_PUBLIC_PADDLE_ENVIRONMENT=sandbox
 - [Paddle Support](https://paddle.com/support/)
 - [Paddle Community](https://community.paddle.com/)
 
+

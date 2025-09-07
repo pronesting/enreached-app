@@ -71,8 +71,16 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
       window.location.href = '/success';
       
     } catch (err) {
-      console.error('Checkout error:', err);
-      setError(err instanceof Error ? err.message : 'Payment failed. Please try again.');
+      console.error('Checkout error on Vercel:', err);
+      
+      const errorMessage = err instanceof Error ? err.message : 'Payment failed. Please try again.';
+      
+      // For Vercel deployment, show specific error message
+      if (errorMessage.includes('400') || errorMessage.includes('domain')) {
+        setError(`Domain approval needed for Vercel deployment. Please add ${window.location.origin} to your Paddle dashboard approved domains.`);
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -147,7 +155,20 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
           <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
             <div className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-red-500" />
-              <p className="text-sm text-red-600">{error}</p>
+              <div className="text-sm text-red-600">
+                <p>{error}</p>
+                {error.includes('Domain approval') && (
+                  <div className="mt-2 text-xs">
+                    <p className="font-semibold">To fix this:</p>
+                    <ol className="list-decimal list-inside mt-1 space-y-1">
+                      <li>Go to <a href="https://vendors.paddle.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">Paddle Dashboard</a></li>
+                      <li>Navigate to Settings → Checkout</li>
+                      <li>Add <code className="bg-gray-100 px-1 rounded">{window.location.origin}</code> to Approved Domains</li>
+                      <li>Refresh this page and try again</li>
+                    </ol>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -180,4 +201,5 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
     </Card>
   );
 }
+
 

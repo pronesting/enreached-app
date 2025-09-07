@@ -69,26 +69,39 @@ export class PaddleService {
   }
 
   private initializePaddle(): void {
-    const clientToken = process.env.NEXT_PUBLIC_PADDLE_CLIENT_TOKEN || 'test_ebdda6dcc37ac553c3e8bc3683d';
+    const clientToken = 'test_ebdda6dcc37ac553c3e8bc3683d';
     
     if (!clientToken) {
       throw new Error('Paddle client token not found. Please set NEXT_PUBLIC_PADDLE_CLIENT_TOKEN in your environment variables.');
     }
 
     try {
-      // Set environment to sandbox first
+      // Set environment to sandbox first - this is critical for Vercel
       window.Paddle.Environment.set('sandbox');
       
-      // Initialize Paddle.js as per documentation (removed environment parameter)
+      // Get the current domain for Vercel deployment
+      const currentDomain = window.location.origin;
+      console.log('Current domain for Paddle:', currentDomain);
+      
+      // Initialize Paddle.js with Vercel-specific configuration
       window.Paddle.Initialize({
         token: clientToken,
-        debug: process.env.NODE_ENV === 'development',
+        debug: true, // Enable debug for Vercel sandbox
+        environment: 'sandbox',
         eventCallback: (data: any) => {
           console.log('Paddle event:', data);
+          // Handle specific events
+          if (data.name === 'checkout.loaded') {
+            console.log('Paddle checkout loaded successfully on Vercel');
+          } else if (data.name === 'checkout.error') {
+            console.error('Paddle checkout error:', data);
+          } else if (data.name === 'checkout.initialized') {
+            console.log('Paddle checkout initialized for Vercel domain:', currentDomain);
+          }
         }
       });
       
-      console.log('Paddle initialized successfully in sandbox mode');
+      console.log('Paddle initialized successfully in sandbox mode for Vercel');
       this.isInitialized = true;
     } catch (error) {
       console.error('Failed to initialize Paddle:', error);
@@ -104,21 +117,30 @@ export class PaddleService {
     return new Promise((resolve, reject) => {
       try {
         // Use proper Paddle.js checkout as per documentation
-        console.log('Opening Paddle checkout with proper API...');
+        console.log('Opening Paddle checkout with proper API for Vercel...');
         
-        // Use a simpler approach with proper error handling
-        // First, let's try to get available prices from Paddle
+        // Ensure we're in sandbox mode before opening checkout
+        window.Paddle.Environment.set('sandbox');
+        
+        // Get current domain for Vercel
+        const currentDomain = window.location.origin;
+        console.log('Using Vercel domain for checkout:', currentDomain);
+        
         const paddleCheckoutData = {
           items: [
             {
-              priceId: 'pri_01h1vjes1y163xfj1rh1tkfb65', // Use a valid sandbox price ID
+              priceId: 'pro_01k4gbm9hqgtbz0462wxnjpdbk',
               quantity: checkoutData.items[0]?.quantity || 1,
             }
           ],
           customer: checkoutData.customer,
-          customData: checkoutData.customData,
-          successUrl: checkoutData.successUrl || `${window.location.origin}/success`,
-          closeUrl: checkoutData.closeUrl || `${window.location.origin}/failed`,
+          customData: {
+            ...checkoutData.customData,
+            vercelDomain: currentDomain,
+            deployment: 'vercel-sandbox'
+          },
+          successUrl: checkoutData.successUrl || `${currentDomain}/success`,
+          closeUrl: checkoutData.closeUrl || `${currentDomain}/failed`,
           settings: {
             theme: 'light',
             displayMode: 'overlay',
@@ -126,35 +148,42 @@ export class PaddleService {
           }
         };
 
-        // If the price ID fails, try with a different approach
-        console.log('Attempting to open Paddle checkout...');
-        
-        // Try to get available prices first
-        window.Paddle.PricePreview({
-          items: paddleCheckoutData.items,
-          callback: (data: any) => {
-            if (data.error) {
-              console.error('Price preview error:', data.error);
-              // Fallback: try with a different price ID or create a transaction
-              this.createTransactionFallback(paddleCheckoutData, resolve, reject);
-            } else {
-              console.log('Price preview successful:', data);
-              // Proceed with checkout
-              this.openCheckoutWithData(paddleCheckoutData, resolve, reject);
-            }
-          }
-        });
+        console.log('Paddle checkout data for Vercel:', JSON.stringify(paddleCheckoutData, null, 2));
 
-        console.log('Paddle checkout data:', JSON.stringify(paddleCheckoutData, null, 2));
+        // Set up event listeners before opening checkout
+        const handleCheckoutEvent = (data: any) => {
+          console.log('Paddle checkout event on Vercel:', data);
+          
+          if (data.name === 'checkout.completed') {
+            console.log('Checkout completed on Vercel:', data);
+            window.Paddle.Event.off('checkout', handleCheckoutEvent);
+            resolve();
+          } else if (data.name === 'checkout.closed') {
+            console.log('Checkout closed on Vercel:', data);
+            window.Paddle.Event.off('checkout', handleCheckoutEvent);
+            reject(new Error('Checkout was closed'));
+          } else if (data.name === 'checkout.error') {
+            console.error('Checkout error on Vercel:', data);
+            window.Paddle.Event.off('checkout', handleCheckoutEvent);
+            reject(new Error(data.error?.message || 'Checkout failed on Vercel'));
+          }
+        };
+
+        // Listen for checkout events
+        window.Paddle.Event.on('checkout', handleCheckoutEvent);
+
+        // Use Paddle.Checkout.open() as per documentation
+        window.Paddle.Checkout.open(paddleCheckoutData);
         
         // Set timeout in case checkout doesn't complete
         setTimeout(() => {
-          console.log('Checkout timeout - assuming user closed checkout');
+          console.log('Checkout timeout on Vercel - assuming user closed checkout');
+          window.Paddle.Event.off('checkout', handleCheckoutEvent);
           reject(new Error('Checkout timeout - user may have closed checkout'));
         }, 300000); // 5 minutes timeout
         
       } catch (error) {
-        console.error('Failed to open Paddle checkout:', error);
+        console.error('Failed to open Paddle checkout on Vercel:', error);
         reject(error);
       }
     });
@@ -182,50 +211,6 @@ export class PaddleService {
         reject(error);
       }
     });
-  }
-
-  private openCheckoutWithData(paddleCheckoutData: any, resolve: Function, reject: Function): void {
-    try {
-      // Use Paddle.Checkout.open() with error handling
-      window.Paddle.Checkout.open(paddleCheckoutData);
-      
-      // Listen for checkout events
-      window.Paddle.Checkout.on('checkout.completed', (data: any) => {
-        console.log('Checkout completed:', data);
-        resolve();
-      });
-      
-      window.Paddle.Checkout.on('checkout.closed', (data: any) => {
-        console.log('Checkout closed:', data);
-        reject(new Error('Checkout was closed'));
-      });
-      
-      window.Paddle.Checkout.on('checkout.error', (data: any) => {
-        console.error('Checkout error:', data);
-        reject(new Error(`Checkout error: ${data.error?.message || 'Unknown error'}`));
-      });
-      
-    } catch (error) {
-      console.error('Failed to open Paddle checkout:', error);
-      reject(error);
-    }
-  }
-
-  private createTransactionFallback(paddleCheckoutData: any, resolve: Function, reject: Function): void {
-    console.log('Using fallback approach - creating transaction directly');
-    
-    // Try with a different price ID that's more likely to work in sandbox
-    const fallbackData = {
-      ...paddleCheckoutData,
-      items: [
-        {
-          priceId: 'pri_01h1vjes1y163xfj1rh1tkfb65', // Try a different price ID
-          quantity: paddleCheckoutData.items[0]?.quantity || 1,
-        }
-      ]
-    };
-    
-    this.openCheckoutWithData(fallbackData, resolve, reject);
   }
 }
 
