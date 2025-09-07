@@ -65,8 +65,11 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
 
       console.log('Rendering Paddle inline checkout with data:', checkoutData);
 
-      // Show inline checkout container
+      // Show inline checkout container first
       setShowInlineCheckout(true);
+      
+      // Wait a bit for the DOM to update and container to be rendered
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Render inline checkout
       await paddleService.renderInlineCheckout(checkoutData, 'paddle-checkout-container');
