@@ -190,7 +190,17 @@ export class PaddleService {
               const container = document.getElementById(containerId);
               if (container) {
                 console.log('Container found:', container);
-                resolveWait();
+                console.log('Container type:', container.tagName);
+                console.log('Container children:', container.children.length);
+                
+                // Ensure the container is ready for iframe insertion
+                if (container.tagName === 'DIV' && container.parentNode) {
+                  console.log('Container is ready for iframe');
+                  resolveWait();
+                } else {
+                  console.log('Container not ready, retrying...');
+                  setTimeout(checkContainer, 100);
+                }
               } else {
                 console.log('Container not found, retrying...');
                 setTimeout(checkContainer, 100);

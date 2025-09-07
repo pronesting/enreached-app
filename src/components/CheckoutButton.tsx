@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CreditCard, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
@@ -17,6 +17,7 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showInlineCheckout, setShowInlineCheckout] = useState(false);
+  const checkoutContainerRef = useRef<HTMLDivElement>(null);
   const { isLoaded, isLoading, error: paddleError, paddleService } = usePaddle();
 
   const handleCheckout = async () => {
@@ -69,9 +70,14 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
       setShowInlineCheckout(true);
       
       // Wait a bit for the DOM to update and container to be rendered
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 200));
       
-      // Render inline checkout
+      // Ensure the ref is available
+      if (!checkoutContainerRef.current) {
+        throw new Error('Checkout container not ready');
+      }
+      
+      // Render inline checkout using the ref
       await paddleService.renderInlineCheckout(checkoutData, 'paddle-checkout-container');
       
     } catch (err) {
@@ -217,8 +223,10 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
           </CardHeader>
           <CardContent>
             <div 
+              ref={checkoutContainerRef}
               id="paddle-checkout-container" 
               className="w-full min-h-[600px] border border-gray-200 rounded-lg"
+              style={{ minHeight: '600px', width: '100%' }}
             >
               {isProcessing && (
                 <div className="flex items-center justify-center h-32">
