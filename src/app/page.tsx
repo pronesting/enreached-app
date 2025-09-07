@@ -18,7 +18,7 @@ const STEPS: { key: Step; title: string; description: string }[] = [
   { key: 'dataType', title: 'Data Type', description: 'Choose what type of data you\'re uploading' },
   { key: 'upload', title: 'Upload CSV', description: 'Upload and review your data file' },
   { key: 'review', title: 'Review Invoice', description: 'Confirm your order details' },
-  { key: 'checkout', title: 'Checkout', description: 'Complete your payment' },
+  { key: 'checkout', title: 'Approve Order', description: 'Approve and request invoice' },
 ];
 
 const PRICE_PER_RECORD = 0.25;
@@ -63,9 +63,9 @@ export default function Home() {
   };
 
   const handleCheckout = () => {
-    setCurrentStep('checkout');
-    // The CheckoutButton component will handle the Paddle integration
-    // and redirect to Paddle's checkout page
+    setCurrentStep('success');
+    // The CheckoutButton component will handle the approval process
+    // and redirect to success page
   };
 
   const goToPreviousStep = () => {
@@ -188,19 +188,20 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="text-center text-green-600 flex items-center justify-center gap-2">
                 <CheckCircle className="h-6 w-6" />
-                Payment Successful!
+                Order Approved!
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-lg font-medium">Thank you for your order!</p>
               <div className="p-4 bg-gray-50 rounded-lg">
-                <h3 className="font-semibold text-gray-800 mb-2">We&apos;re Working on It!</h3>
+                <h3 className="font-semibold text-gray-800 mb-2">Next Steps</h3>
                 <p className="text-sm text-gray-600">
-                  Our team is processing your data and will deliver the complete report to your email within 24-48 hours.
+                  You will receive an invoice via email within 24 hours with payment instructions.
+                  Once payment is received, we'll process your data and deliver the complete report within 24-48 hours.
                 </p>
               </div>
               <p className="text-sm text-gray-600">
-                You will receive a confirmation email shortly with your order details.
+                Check your email for the invoice and payment details.
               </p>
             </CardContent>
           </Card>

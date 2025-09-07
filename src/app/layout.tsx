@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { PaddleProvider } from "@/components/PaddleProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Enreached - Data Processing",
-  description: "Process your data with secure payment processing",
+  description: "Process your data with our secure approval system",
 };
 
 export default function RootLayout({
@@ -25,19 +24,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {/* Paddle.js script - loaded early for better performance */}
-        <script 
-          src="https://cdn.paddle.com/paddle/v2/paddle.js" 
-          async
-        />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <PaddleProvider>
-          {children}
-        </PaddleProvider>
+        {children}
       </body>
     </html>
   );
