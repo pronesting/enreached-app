@@ -72,24 +72,7 @@ export async function createPayPalOrder(orderData: {
       user_action: 'PAY_NOW',
       return_url: orderData.returnUrl,
       cancel_url: orderData.cancelUrl,
-      payment_method: {
-        payer_selected: 'PAYPAL',
-        payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED'
-      }
     },
-    payment_source: {
-      paypal: {
-        experience_context: {
-          payment_method_preference: 'IMMEDIATE_PAYMENT_REQUIRED',
-          brand_name: 'Enreached',
-          locale: 'en-US',
-          landing_page: 'BILLING',
-          user_action: 'PAY_NOW',
-          return_url: orderData.returnUrl,
-          cancel_url: orderData.cancelUrl
-        }
-      }
-    }
   };
 
   console.log('PayPal Order Payload:', JSON.stringify(orderPayload, null, 2));
