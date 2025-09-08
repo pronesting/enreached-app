@@ -79,9 +79,17 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
+    const approvalUrl = order.result.links?.find((link: any) => link.rel === 'approve')?.href;
+    
+    console.log('PayPal create-order API: Order created successfully', {
+      orderId: order.result.id,
+      approvalUrl,
+      customId
+    });
+
     return NextResponse.json({
       orderId: order.result.id,
-      approvalUrl: order.result.links?.find((link: any) => link.rel === 'approve')?.href,
+      approvalUrl,
       customId,
     });
 

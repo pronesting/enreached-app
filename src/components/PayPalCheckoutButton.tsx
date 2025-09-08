@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, Loader2, AlertCircle, CreditCard } from 'lucide-react';
 import { InvoiceData } from '@/types';
-import { PAYPAL_CONFIG } from '@/lib/paypal-config';
 
 interface PayPalCheckoutButtonProps {
   invoiceData: InvoiceData;
@@ -21,53 +20,20 @@ export function PayPalCheckoutButton({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [{ isPending, isResolved }] = usePayPalScriptReducer();
 
   console.log('PayPalCheckoutButton rendered:', { 
     invoiceData, 
-    isPending, 
-    isResolved,
     isProcessing, 
     isApproved, 
     error 
   });
 
-  // Reset error when component mounts
-  useEffect(() => {
-    setError(null);
-  }, []);
-
-
-  // Check if PayPal is configured
-  if (!PAYPAL_CONFIG.CLIENT_ID || PAYPAL_CONFIG.CLIENT_ID === '') {
-    return (
-      <Card className="w-full max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle className="text-center">PayPal Not Configured</CardTitle>
-        </CardHeader>
-        <CardContent className="text-center space-y-4">
-          <AlertCircle className="h-16 w-16 text-yellow-500 mx-auto" />
-          <div>
-            <h3 className="font-semibold text-yellow-600 text-xl">PayPal Integration Not Set Up</h3>
-            <p className="text-sm text-gray-600 mt-2">
-              Please configure your PayPal credentials to enable payment processing.
-            </p>
-          </div>
-          <div className="p-4 bg-yellow-50 rounded-lg">
-            <p className="text-sm text-yellow-700">
-              Contact your administrator to set up PayPal integration.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const createOrder = async () => {
+  const handlePayPalPayment = async () => {
     try {
       setIsProcessing(true);
       setError(null);
 
+      console.log('Creating PayPal order...');
       const response = await fetch('/api/paypal/create-order', {
         method: 'POST',
         headers: {
@@ -77,57 +43,68 @@ export function PayPalCheckoutButton({
       });
 
       const data = await response.json();
+      console.log('PayPal order response:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create order');
       }
 
-      return data.orderId;
+      // Redirect to PayPal for payment
+      if (data.approvalUrl) {
+        console.log('Redirecting to PayPal:', data.approvalUrl);
+        window.location.href = data.approvalUrl;
+      } else {
+        throw new Error('No approval URL received from PayPal');
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to create order';
+      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
+      console.error('PayPal payment error:', errorMessage);
       setError(errorMessage);
       onError(errorMessage);
-      throw err;
     } finally {
       setIsProcessing(false);
     }
   };
 
-  const onApprove = async (data: any) => {
+  const handleCreditCardPayment = async () => {
     try {
       setIsProcessing(true);
       setError(null);
 
-      const response = await fetch('/api/paypal/capture-order', {
+      console.log('Creating PayPal order for credit card...');
+      const response = await fetch('/api/paypal/create-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ orderId: data.orderID }),
+        body: JSON.stringify({
+          ...invoiceData,
+          paymentMethod: 'credit_card'
+        }),
       });
 
-      const result = await response.json();
+      const data = await response.json();
+      console.log('PayPal credit card order response:', data);
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to capture payment');
+        throw new Error(data.error || 'Failed to create order');
       }
 
-      setIsApproved(true);
-      onSuccess(data.orderID);
+      // For credit card, we'll redirect to PayPal's hosted page
+      if (data.approvalUrl) {
+        console.log('Redirecting to PayPal credit card form:', data.approvalUrl);
+        window.location.href = data.approvalUrl;
+      } else {
+        throw new Error('No approval URL received from PayPal');
+      }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
+      const errorMessage = err instanceof Error ? err.message : 'Credit card payment failed';
+      console.error('Credit card payment error:', errorMessage);
       setError(errorMessage);
       onError(errorMessage);
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const handlePayPalError = (err: any) => {
-    console.error('PayPal error:', err);
-    const errorMessage = 'Payment failed. Please try again.';
-    setError(errorMessage);
-    onError(errorMessage);
   };
 
   if (isApproved) {
@@ -158,26 +135,12 @@ export function PayPalCheckoutButton({
     );
   }
 
-  if (isPending || !isResolved) {
-    return (
-      <Card className="w-full max-w-md mx-auto">
-        <CardContent className="p-6">
-          <div className="text-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto" />
-            <p className="text-gray-600">Loading PayPal...</p>
-            <p className="text-xs text-gray-500">isPending: {isPending.toString()}, isResolved: {isResolved.toString()}</p>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle className="text-center">PayPal Checkout</CardTitle>
+        <CardTitle className="text-center">Payment Options</CardTitle>
         <p className="text-center text-sm text-gray-600">
-          Complete your payment securely with PayPal
+          Choose your preferred payment method
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -226,20 +189,42 @@ export function PayPalCheckoutButton({
           </div>
         )}
 
-        {/* PayPal Button */}
-        <div className="flex justify-center">
-          <PayPalButtons
-            createOrder={createOrder}
-            onApprove={onApprove}
-            onError={handlePayPalError}
-            disabled={isProcessing}
-            style={{
-              layout: 'vertical',
-              color: 'blue',
-              shape: 'rect',
-              label: 'paypal',
-            }}
-          />
+        {/* Payment Buttons */}
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* PayPal Button */}
+            <Button
+              onClick={handlePayPalPayment}
+              disabled={isProcessing}
+              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isProcessing ? (
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              ) : (
+                <img 
+                  src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" 
+                  alt="PayPal" 
+                  className="h-5 w-5 mr-2"
+                />
+              )}
+              Pay with PayPal
+            </Button>
+
+            {/* Credit Card Button */}
+            <Button
+              onClick={handleCreditCardPayment}
+              disabled={isProcessing}
+              variant="outline"
+              className="w-full h-12 border-2 border-gray-300 hover:border-gray-400"
+            >
+              {isProcessing ? (
+                <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              ) : (
+                <CreditCard className="h-5 w-5 mr-2" />
+              )}
+              Pay with Credit Card
+            </Button>
+          </div>
         </div>
 
         <div className="text-xs text-gray-500 text-center">
