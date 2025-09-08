@@ -21,7 +21,6 @@ export function UserDetailsForm({ onSubmit, initialData, onBack, canGoBack }: Us
     lastName: '',
     email: '',
     phone: '',
-    listName: '',
   });
 
   const [errors, setErrors] = useState<Partial<UserDetails>>({});
@@ -47,10 +46,6 @@ export function UserDetailsForm({ onSubmit, initialData, onBack, canGoBack }: Us
       newErrors.phone = 'Phone number is required';
     }
 
-    if (!formData.listName.trim()) {
-      newErrors.listName = 'List name is required';
-    }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -70,7 +65,7 @@ export function UserDetailsForm({ onSubmit, initialData, onBack, canGoBack }: Us
   };
 
   return (
-    <Card className="w-full max-w-lg mx-auto shadow-lg">
+    <Card className="w-full max-w-2xl mx-auto shadow-lg">
       <CardHeader className="pb-4">
         <CardTitle className="text-center text-lg text-gray-800">Personal Details</CardTitle>
         <p className="text-center text-sm text-gray-600 mt-1">
@@ -136,20 +131,6 @@ export function UserDetailsForm({ onSubmit, initialData, onBack, canGoBack }: Us
             )}
           </div>
 
-          <div className="space-y-1">
-            <Label htmlFor="listName" className="text-sm font-medium text-gray-700">List Name *</Label>
-            <Input
-              id="listName"
-              type="text"
-              value={formData.listName}
-              onChange={(e) => handleInputChange('listName', e.target.value)}
-              className={`h-10 ${errors.listName ? 'border-red-500' : 'border-gray-300'}`}
-              placeholder="e.g., Customer List 2024"
-            />
-            {errors.listName && (
-              <p className="text-red-500 text-xs mt-1">{errors.listName}</p>
-            )}
-          </div>
 
           <div className="flex gap-3 pt-3">
             {canGoBack && onBack && (

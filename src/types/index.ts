@@ -3,7 +3,6 @@ export interface UserDetails {
   lastName: string;
   email: string;
   phone: string;
-  listName: string;
 }
 
 export type DataType = 'emails' | 'phones';

@@ -30,7 +30,6 @@ export default function Home() {
     lastName: '',
     email: '',
     phone: '',
-    listName: '',
   });
   const [dataType, setDataType] = useState<DataType>('emails');
   const [csvData, setCsvData] = useState<CsvData | null>(null);
@@ -125,7 +124,7 @@ export default function Home() {
   const canGoForward = useCallback(() => {
     switch (currentStep) {
       case 'details':
-        return userDetails.firstName && userDetails.lastName && userDetails.email && userDetails.phone && userDetails.listName;
+        return userDetails.firstName && userDetails.lastName && userDetails.email && userDetails.phone;
       case 'dataType':
         return true;
       case 'upload':
@@ -230,8 +229,8 @@ export default function Home() {
     <div className="min-h-screen-mobile bg-gray-50 flex flex-col">
       {/* Main Content Area - Fixed height to fit viewport */}
       <div className="flex-1 flex flex-col justify-between min-h-0">
-        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex-1 flex flex-col">
-          <div className="max-w-2xl mx-auto flex-1 flex flex-col">
+        <div className="container mx-auto px-4 py-4 flex-1 flex flex-col">
+          <div className="max-w-4xl mx-auto flex-1 flex flex-col">
             {/* Header with Logo - Compact */}
             <div className="text-center mb-3 sm:mb-4 flex-shrink-0">
               <img 

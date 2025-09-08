@@ -53,10 +53,6 @@ export function InvoiceCard({ invoiceData, onCheckout, onBack, canGoBack }: Invo
                   {userDetails.phone}
                 </p>
               </div>
-              <div>
-                <p className="text-sm text-gray-600">List Name</p>
-                <p className="font-medium">{userDetails.listName}</p>
-              </div>
             </div>
           </div>
 
@@ -107,20 +103,6 @@ export function InvoiceCard({ invoiceData, onCheckout, onBack, canGoBack }: Invo
         </CardContent>
       </Card>
 
-      {/* Pricing Information */}
-      <Card className="bg-gray-50">
-        <CardContent className="pt-6">
-          <h4 className="font-semibold mb-2">Pricing Information</h4>
-          <div className="text-sm text-gray-600 space-y-1">
-            <p>• Processing fee: ${pricePerRecord.toFixed(2)} per {dataType.slice(0, -1)}</p>
-            <p>• Total records: {recordCount.toLocaleString()}</p>
-            <p>• Final amount: ${totalAmount.toFixed(2)}</p>
-            <p className="text-xs mt-2 text-gray-500">
-              Payment will be processed securely through our payment provider.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
