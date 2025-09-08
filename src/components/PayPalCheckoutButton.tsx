@@ -82,7 +82,7 @@ export function PayPalCheckoutButton({
     }
   };
 
-  const onError = (err: any) => {
+  const handlePayPalError = (err: any) => {
     console.error('PayPal error:', err);
     const errorMessage = 'Payment failed. Please try again.';
     setError(errorMessage);
@@ -189,7 +189,7 @@ export function PayPalCheckoutButton({
           <PayPalButtons
             createOrder={createOrder}
             onApprove={onApprove}
-            onError={onError}
+            onError={handlePayPalError}
             disabled={isProcessing}
             style={{
               layout: 'vertical',
