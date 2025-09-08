@@ -227,24 +227,24 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen bg-white flex flex-col overflow-hidden">
-      {/* Main Content Area - Scrollable */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="container mx-auto px-4 py-6 h-full">
-          <div className="max-w-3xl mx-auto h-full flex flex-col">
-            {/* Header with Logo */}
-            <div className="text-center mb-6 flex-shrink-0">
+    <div className="min-h-screen-mobile bg-gray-50 flex flex-col">
+      {/* Main Content Area - Fixed height to fit viewport */}
+      <div className="flex-1 flex flex-col justify-between min-h-0">
+        <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4 flex-1 flex flex-col">
+          <div className="max-w-2xl mx-auto flex-1 flex flex-col">
+            {/* Header with Logo - Compact */}
+            <div className="text-center mb-3 sm:mb-4 flex-shrink-0">
               <img 
                 src="/Logo for enreached.svg" 
                 alt="ENRECHED Logo" 
-                className="mx-auto h-16 w-auto"
+                className="mx-auto h-10 sm:h-12 w-auto"
               />
             </div>
 
-            {/* Progress Bar */}
+            {/* Progress Bar - Compact */}
             {currentStep !== 'success' && currentStep !== 'failed' && (
-              <div className="mb-6 flex-shrink-0">
-                <div className="text-center text-sm text-gray-600 mb-3">
+              <div className="mb-3 sm:mb-4 flex-shrink-0">
+                <div className="text-center text-xs sm:text-sm text-gray-600 mb-2">
                   <span>{STEPS[currentStepIndex]?.title}</span>
                 </div>
                 <Progress 
@@ -254,20 +254,20 @@ export default function Home() {
               </div>
             )}
 
-            {/* Main Content - Flexible */}
+            {/* Main Content - Flexible and centered */}
             <div className="flex-1 flex flex-col justify-center min-h-0">
               {renderCurrentStep()}
             </div>
           </div>
         </div>
+        
+        {/* Footer - Positioned at bottom */}
+        {currentStep !== 'success' && currentStep !== 'failed' && (
+          <div className="flex-shrink-0">
+            <Footer />
+          </div>
+        )}
       </div>
-      
-      {/* Footer - Fixed at bottom */}
-      {currentStep !== 'success' && currentStep !== 'failed' && (
-        <div className="flex-shrink-0">
-          <Footer />
-        </div>
-      )}
     </div>
   );
 }
