@@ -61,18 +61,22 @@ export async function createPayPalOrder(orderData: {
         reference_id: orderData.customId,
         amount: {
           currency_code: orderData.currency,
-          value: orderData.amount,
+          value: parseFloat(orderData.amount).toFixed(2),
         },
         description: orderData.description,
       },
     ],
-    application_context: {
-      brand_name: 'Enreached',
-      landing_page: 'BILLING',
-      user_action: 'PAY_NOW',
-      return_url: orderData.returnUrl,
-      cancel_url: orderData.cancelUrl,
-    },
+    payment_source: {
+      paypal: {
+        experience_context: {
+          brand_name: 'Enreached',
+          landing_page: 'BILLING',
+          user_action: 'PAY_NOW',
+          return_url: orderData.returnUrl,
+          cancel_url: orderData.cancelUrl,
+        }
+      }
+    }
   };
 
   console.log('PayPal Order Payload:', JSON.stringify(orderPayload, null, 2));
@@ -94,6 +98,15 @@ export async function createPayPalOrder(orderData: {
       statusText: response.statusText,
       error: error
     });
+    
+    // Try to parse the error as JSON for better debugging
+    try {
+      const errorJson = JSON.parse(error);
+      console.error('PayPal API Error Details:', errorJson);
+    } catch (e) {
+      console.error('Could not parse error as JSON:', e);
+    }
+    
     throw new Error(`Failed to create PayPal order: ${error}`);
   }
 
