@@ -10,12 +10,16 @@ interface PayPalCheckoutButtonProps {
   invoiceData: InvoiceData;
   onSuccess: (orderId: string) => void;
   onError: (error: string) => void;
+  onBack?: () => void;
+  canGoBack?: boolean;
 }
 
 export function PayPalCheckoutButton({ 
   invoiceData, 
   onSuccess, 
-  onError 
+  onError,
+  onBack,
+  canGoBack
 }: PayPalCheckoutButtonProps) {
   const [isApproved, setIsApproved] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -125,7 +129,7 @@ export function PayPalCheckoutButton({
   }
 
   return (
-    <Card className="w-[600px] mx-auto">
+    <Card className="w-full max-w-[600px] mx-auto">
       <CardHeader className="pb-4">
         <CardTitle className="text-center text-lg font-semibold text-gray-800">Complete Your Payment</CardTitle>
         <p className="text-center text-sm text-gray-600 mt-2">
@@ -196,6 +200,21 @@ export function PayPalCheckoutButton({
             fundingSource={undefined}
           />
         </div>
+
+        {/* Back Button */}
+        {canGoBack && onBack && (
+          <div className="flex justify-center pt-4">
+            <button
+              onClick={onBack}
+              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Back
+            </button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

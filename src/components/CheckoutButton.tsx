@@ -7,9 +7,11 @@ import { InvoiceData } from '@/types';
 interface CheckoutButtonProps {
   invoiceData: InvoiceData;
   onCheckout: () => void;
+  onBack?: () => void;
+  canGoBack?: boolean;
 }
 
-export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps) {
+export function CheckoutButton({ invoiceData, onCheckout, onBack, canGoBack }: CheckoutButtonProps) {
   const [isCompleted, setIsCompleted] = useState(false);
 
   console.log('CheckoutButton rendered:', { invoiceData, isCompleted });
@@ -36,6 +38,8 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
       invoiceData={invoiceData}
       onSuccess={handleSuccess}
       onError={handleError}
+      onBack={onBack}
+      canGoBack={canGoBack}
     />
   );
 }

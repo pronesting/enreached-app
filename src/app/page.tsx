@@ -179,7 +179,9 @@ export default function Home() {
         return invoiceData ? (
           <CheckoutButton 
             invoiceData={invoiceData} 
-            onCheckout={handleCheckout} 
+            onCheckout={handleCheckout}
+            onBack={goToPreviousStep}
+            canGoBack={canGoBack()}
           />
         ) : null;
       case 'success':
