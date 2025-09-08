@@ -26,14 +26,17 @@ export async function POST(request: NextRequest) {
     const customId = `enreached_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     // Create order data
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://enreached-app.vercel.app';
     const orderData = {
       amount: invoiceData.totalAmount.toFixed(2),
       currency: 'USD',
       description: `Data Processing - ${invoiceData.dataType} (${invoiceData.recordCount.toLocaleString()} records)`,
       customId,
-      returnUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/success?orderId={ORDER_ID}`,
-      cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/failed`,
+      returnUrl: `${baseUrl}/success`,
+      cancelUrl: `${baseUrl}/failed`,
     };
+
+    console.log('Order data being sent to PayPal:', orderData);
 
     let order;
     try {

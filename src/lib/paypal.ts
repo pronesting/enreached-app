@@ -8,6 +8,12 @@ const PAYPAL_API_BASE = PAYPAL_CONFIG.MODE === 'live'
 // Get PayPal access token
 export async function getPayPalAccessToken(): Promise<string> {
   console.log('Getting PayPal access token...');
+  console.log('PayPal Config:', {
+    mode: PAYPAL_CONFIG.MODE,
+    clientId: PAYPAL_CONFIG.CLIENT_ID ? `${PAYPAL_CONFIG.CLIENT_ID.substring(0, 10)}...` : 'NOT SET',
+    clientSecret: PAYPAL_CONFIG.CLIENT_SECRET ? `${PAYPAL_CONFIG.CLIENT_SECRET.substring(0, 10)}...` : 'NOT SET',
+    apiBase: PAYPAL_API_BASE
+  });
   
   const auth = Buffer.from(`${PAYPAL_CONFIG.CLIENT_ID}:${PAYPAL_CONFIG.CLIENT_SECRET}`).toString('base64');
   
@@ -22,6 +28,11 @@ export async function getPayPalAccessToken(): Promise<string> {
 
   if (!response.ok) {
     const error = await response.text();
+    console.error('PayPal Access Token Error:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: error
+    });
     throw new Error(`Failed to get PayPal access token: ${error}`);
   }
 
@@ -64,6 +75,8 @@ export async function createPayPalOrder(orderData: {
     },
   };
 
+  console.log('PayPal Order Payload:', JSON.stringify(orderPayload, null, 2));
+
   const response = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders`, {
     method: 'POST',
     headers: {
@@ -76,6 +89,11 @@ export async function createPayPalOrder(orderData: {
 
   if (!response.ok) {
     const error = await response.text();
+    console.error('PayPal API Error Response:', {
+      status: response.status,
+      statusText: response.statusText,
+      error: error
+    });
     throw new Error(`Failed to create PayPal order: ${error}`);
   }
 
