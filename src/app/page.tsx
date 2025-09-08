@@ -63,9 +63,9 @@ export default function Home() {
   };
 
   const handleCheckout = () => {
-    setCurrentStep('success');
-    // The CheckoutButton component will handle the approval process
-    // and redirect to success page
+    setCurrentStep('checkout');
+    // The CheckoutButton component will handle the PayPal payment process
+    // and redirect to success page after payment
   };
 
   const goToPreviousStep = () => {

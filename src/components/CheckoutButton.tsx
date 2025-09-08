@@ -17,7 +17,8 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
   const handleSuccess = (orderId: string) => {
     console.log('Payment successful:', orderId);
     setIsCompleted(true);
-    onCheckout();
+    // Redirect to success page with order ID
+    window.location.href = `/success?orderId=${orderId}`;
   };
 
   const handleError = (error: string) => {

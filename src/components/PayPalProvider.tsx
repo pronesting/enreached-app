@@ -9,6 +9,8 @@ interface PayPalProviderProps {
 }
 
 export function PayPalProvider({ children }: PayPalProviderProps) {
+  console.log('PayPalProvider rendered with client ID:', PAYPAL_CONFIG.CLIENT_ID);
+  
   // Only load PayPal if we have a valid client ID
   if (!PAYPAL_CONFIG.CLIENT_ID || PAYPAL_CONFIG.CLIENT_ID === '') {
     console.warn('PayPal Client ID not configured. Please update paypal-config.ts with your actual client ID.');
@@ -26,6 +28,7 @@ export function PayPalProvider({ children }: PayPalProviderProps) {
     console.error('PayPal SDK Error:', error);
   }, []);
 
+  console.log('PayPalProvider: Rendering PayPalScriptProvider');
   return (
     <PayPalScriptProvider options={paypalOptions} onError={onError}>
       {children}
