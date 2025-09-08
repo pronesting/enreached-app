@@ -1,17 +1,17 @@
 import { checkoutNodeJssdk } from '@paypal/checkout-server-sdk';
-import { env } from './env';
+import { PAYPAL_CONFIG } from './paypal-config';
 
 // PayPal environment configuration
 export function getPayPalEnvironment() {
-  if (env.PAYPAL_MODE === 'live') {
+  if (PAYPAL_CONFIG.MODE === 'live') {
     return new checkoutNodeJssdk.core.LiveEnvironment(
-      env.PAYPAL_CLIENT_ID,
-      env.PAYPAL_CLIENT_SECRET
+      PAYPAL_CONFIG.CLIENT_ID,
+      PAYPAL_CONFIG.CLIENT_SECRET
     );
   } else {
     return new checkoutNodeJssdk.core.SandboxEnvironment(
-      env.PAYPAL_CLIENT_ID,
-      env.PAYPAL_CLIENT_SECRET
+      PAYPAL_CONFIG.CLIENT_ID,
+      PAYPAL_CONFIG.CLIENT_SECRET
     );
   }
 }
