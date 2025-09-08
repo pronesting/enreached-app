@@ -1,6 +1,14 @@
 import { checkoutNodeJssdk } from '@paypal/checkout-server-sdk';
 import { PAYPAL_CONFIG } from './paypal-config';
 
+// Debug: Check if PayPal SDK is properly imported
+console.log('PayPal lib: SDK imported:', {
+  hasCheckoutNodeJssdk: !!checkoutNodeJssdk,
+  hasCore: !!checkoutNodeJssdk?.core,
+  hasOrders: !!checkoutNodeJssdk?.orders,
+  config: PAYPAL_CONFIG
+});
+
 // PayPal environment configuration
 export function getPayPalEnvironment() {
   console.log('PayPal lib: Creating environment with config:', {

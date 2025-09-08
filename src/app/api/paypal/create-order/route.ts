@@ -24,8 +24,17 @@ export async function POST(request: NextRequest) {
     }
 
     console.log('PayPal create-order API: Getting PayPal client');
-    const client = getPayPalClient();
-    console.log('PayPal create-order API: PayPal client created successfully');
+    let client;
+    try {
+      client = getPayPalClient();
+      console.log('PayPal create-order API: PayPal client created successfully');
+    } catch (clientError) {
+      console.error('PayPal create-order API: Error creating client:', clientError);
+      return NextResponse.json(
+        { error: 'Failed to create PayPal client', details: clientError instanceof Error ? clientError.message : 'Unknown error' },
+        { status: 500 }
+      );
+    }
     
     // Generate unique order ID
     const customId = `enreached_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -43,10 +52,30 @@ export async function POST(request: NextRequest) {
     console.log('PayPal create-order API: Order data:', orderData);
 
     console.log('PayPal create-order API: Creating order request');
-    const orderRequest = createOrderRequest(orderData);
+    let orderRequest;
+    try {
+      orderRequest = createOrderRequest(orderData);
+      console.log('PayPal create-order API: Order request created successfully');
+    } catch (requestError) {
+      console.error('PayPal create-order API: Error creating order request:', requestError);
+      return NextResponse.json(
+        { error: 'Failed to create order request', details: requestError instanceof Error ? requestError.message : 'Unknown error' },
+        { status: 500 }
+      );
+    }
+
     console.log('PayPal create-order API: Executing order request');
-    const order = await client.execute(orderRequest);
-    console.log('PayPal create-order API: Order created successfully:', order.result.id);
+    let order;
+    try {
+      order = await client.execute(orderRequest);
+      console.log('PayPal create-order API: Order created successfully:', order.result.id);
+    } catch (executeError) {
+      console.error('PayPal create-order API: Error executing order:', executeError);
+      return NextResponse.json(
+        { error: 'Failed to execute order', details: executeError instanceof Error ? executeError.message : 'Unknown error' },
+        { status: 500 }
+      );
+    }
 
     // Store order data for later reference (in a real app, you'd store this in a database)
     const orderInfo = {
