@@ -65,7 +65,7 @@ export function UserDetailsForm({ onSubmit, initialData, onBack, canGoBack }: Us
   };
 
   return (
-    <Card className="w-[600px] mx-auto shadow-lg">
+    <Card className="w-[calc(100%-40px)] sm:w-[600px] mx-auto shadow-lg">
       <CardHeader className="pb-4">
         <CardTitle className="text-center text-lg text-gray-800">Personal Details</CardTitle>
         <p className="text-center text-sm text-gray-600 mt-1">
