@@ -5,6 +5,7 @@ import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { InvoiceData } from '@/types';
+import { env } from '@/lib/env';
 
 interface PayPalCheckoutButtonProps {
   invoiceData: InvoiceData;
@@ -21,6 +22,31 @@ export function PayPalCheckoutButton({
   const [isApproved, setIsApproved] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [{ isPending }] = usePayPalScriptReducer();
+
+  // Check if PayPal is configured
+  if (!env.PAYPAL_CLIENT_ID || env.PAYPAL_CLIENT_ID === '') {
+    return (
+      <Card className="w-full max-w-2xl mx-auto">
+        <CardHeader>
+          <CardTitle className="text-center">PayPal Not Configured</CardTitle>
+        </CardHeader>
+        <CardContent className="text-center space-y-4">
+          <AlertCircle className="h-16 w-16 text-yellow-500 mx-auto" />
+          <div>
+            <h3 className="font-semibold text-yellow-600 text-xl">PayPal Integration Not Set Up</h3>
+            <p className="text-sm text-gray-600 mt-2">
+              Please configure your PayPal credentials to enable payment processing.
+            </p>
+          </div>
+          <div className="p-4 bg-yellow-50 rounded-lg">
+            <p className="text-sm text-yellow-700">
+              Contact your administrator to set up PayPal integration.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const createOrder = async () => {
     try {
