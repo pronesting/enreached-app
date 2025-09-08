@@ -125,7 +125,7 @@ export function PayPalCheckoutButton({
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-[600px] mx-auto">
       <CardHeader className="pb-4">
         <CardTitle className="text-center text-lg font-semibold text-gray-800">Complete Your Payment</CardTitle>
         <p className="text-center text-sm text-gray-600 mt-2">

@@ -176,7 +176,7 @@ export function CsvUploader({ onUpload, dataType, onBack, canGoBack }: CsvUpload
   };
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-[600px] mx-auto">
       <CardHeader>
         <CardTitle className="text-center">Upload CSV File</CardTitle>
         <p className="text-center text-sm text-gray-600">
