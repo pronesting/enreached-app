@@ -28,50 +28,12 @@ export function PayPalCheckoutButton({
     error 
   });
 
-  const handlePayPalPayment = async () => {
+  const handlePayment = async () => {
     try {
       setIsProcessing(true);
       setError(null);
 
-      console.log('Creating PayPal order...');
-      const response = await fetch('/api/paypal/create-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(invoiceData),
-      });
-
-      const data = await response.json();
-      console.log('PayPal order response:', data);
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create order');
-      }
-
-      // Redirect to PayPal for payment
-      if (data.approvalUrl) {
-        console.log('Redirecting to PayPal:', data.approvalUrl);
-        window.location.href = data.approvalUrl;
-      } else {
-        throw new Error('No approval URL received from PayPal');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
-      console.error('PayPal payment error:', errorMessage);
-      setError(errorMessage);
-      onError(errorMessage);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  const handleCreditCardPayment = async () => {
-    try {
-      setIsProcessing(true);
-      setError(null);
-
-      console.log('Creating PayPal order for credit card...');
+      console.log('Creating PayPal order for credit card payment...');
       const response = await fetch('/api/paypal/create-order', {
         method: 'POST',
         headers: {
@@ -84,13 +46,13 @@ export function PayPalCheckoutButton({
       });
 
       const data = await response.json();
-      console.log('PayPal credit card order response:', data);
+      console.log('PayPal order response:', data);
 
       if (!response.ok) {
         throw new Error(data.error || 'Failed to create order');
       }
 
-      // For credit card, we'll redirect to PayPal's hosted page
+      // Redirect to PayPal for credit card payment
       if (data.approvalUrl) {
         console.log('Redirecting to PayPal credit card form:', data.approvalUrl);
         window.location.href = data.approvalUrl;
@@ -98,8 +60,8 @@ export function PayPalCheckoutButton({
         throw new Error('No approval URL received from PayPal');
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Credit card payment failed';
-      console.error('Credit card payment error:', errorMessage);
+      const errorMessage = err instanceof Error ? err.message : 'Payment failed';
+      console.error('Payment error:', errorMessage);
       setError(errorMessage);
       onError(errorMessage);
     } finally {
@@ -138,9 +100,9 @@ export function PayPalCheckoutButton({
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle className="text-center">Payment Options</CardTitle>
+        <CardTitle className="text-center">Complete Your Payment</CardTitle>
         <p className="text-center text-sm text-gray-600">
-          Choose your preferred payment method
+          Secure payment powered by PayPal
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -189,49 +151,29 @@ export function PayPalCheckoutButton({
           </div>
         )}
 
-        {/* Payment Buttons */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* PayPal Button */}
-            <Button
-              onClick={handlePayPalPayment}
-              disabled={isProcessing}
-              className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              {isProcessing ? (
-                <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              ) : (
-                <img 
-                  src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" 
-                  alt="PayPal" 
-                  className="h-5 w-5 mr-2"
-                />
-              )}
-              Pay with PayPal
-            </Button>
-
-            {/* Credit Card Button */}
-            <Button
-              onClick={handleCreditCardPayment}
-              disabled={isProcessing}
-              variant="outline"
-              className="w-full h-12 border-2 border-gray-300 hover:border-gray-400"
-            >
-              {isProcessing ? (
-                <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              ) : (
-                <CreditCard className="h-5 w-5 mr-2" />
-              )}
-              Pay with Credit Card
-            </Button>
-          </div>
+        {/* PayPal Button */}
+        <div className="flex justify-center">
+          <Button
+            onClick={handlePayment}
+            disabled={isProcessing}
+            className="w-full max-w-sm h-14 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+          >
+            {isProcessing ? (
+              <Loader2 className="h-6 w-6 animate-spin mr-3" />
+            ) : (
+              <img 
+                src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" 
+                alt="PayPal" 
+                className="h-6 w-6 mr-3"
+              />
+            )}
+            {isProcessing ? 'Processing...' : 'Pay with Credit Card'}
+          </Button>
         </div>
 
-        <div className="text-xs text-gray-500 text-center">
-          <p>Secure payment powered by PayPal</p>
-          <p className="mt-1">
-            You will be redirected to PayPal to complete your payment
-          </p>
+        <div className="text-xs text-gray-500 text-center space-y-1">
+          <p>🔒 Secure payment powered by PayPal</p>
+          <p>No PayPal account required - pay with any credit card</p>
         </div>
       </CardContent>
     </Card>
