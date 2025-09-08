@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
@@ -21,15 +21,21 @@ export function PayPalCheckoutButton({
   const [isProcessing, setIsProcessing] = useState(false);
   const [isApproved, setIsApproved] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [{ isPending }] = usePayPalScriptReducer();
+  const [{ isPending, isResolved }] = usePayPalScriptReducer();
 
   console.log('PayPalCheckoutButton rendered:', { 
     invoiceData, 
     isPending, 
+    isResolved,
     isProcessing, 
     isApproved, 
     error 
   });
+
+  // Reset error when component mounts
+  useEffect(() => {
+    setError(null);
+  }, []);
 
 
   // Check if PayPal is configured
@@ -152,13 +158,14 @@ export function PayPalCheckoutButton({
     );
   }
 
-  if (isPending) {
+  if (isPending || !isResolved) {
     return (
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="p-6">
           <div className="text-center space-y-4">
             <Loader2 className="h-8 w-8 animate-spin mx-auto" />
             <p className="text-gray-600">Loading PayPal...</p>
+            <p className="text-xs text-gray-500">isPending: {isPending.toString()}, isResolved: {isResolved.toString()}</p>
           </div>
         </CardContent>
       </Card>
