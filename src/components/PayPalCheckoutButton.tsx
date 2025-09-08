@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { CheckCircle, AlertCircle, ChevronLeft } from 'lucide-react';
 import { InvoiceData } from '@/types';
 import { PayPalButtons, PayPalMarks, PayPalMessages } from '@paypal/react-paypal-js';
 
@@ -129,7 +130,7 @@ export function PayPalCheckoutButton({
   }
 
   return (
-    <Card className="w-full max-w-[600px] mx-auto">
+    <Card className="w-full max-w-[400px] sm:max-w-[600px] mx-auto">
       <CardHeader className="pb-4">
         <CardTitle className="text-center text-lg font-semibold text-gray-800">Complete Your Payment</CardTitle>
         <p className="text-center text-sm text-gray-600 mt-2">
@@ -203,16 +204,15 @@ export function PayPalCheckoutButton({
 
         {/* Back Button */}
         {canGoBack && onBack && (
-          <div className="flex justify-center pt-4">
-            <button
+          <div className="flex justify-start pt-4">
+            <Button 
+              variant="outline" 
               onClick={onBack}
-              className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex items-center gap-2"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              <ChevronLeft className="h-4 w-4" />
               Back
-            </button>
+            </Button>
           </div>
         )}
       </CardContent>
