@@ -23,6 +23,14 @@ export function PayPalCheckoutButton({
   const [error, setError] = useState<string | null>(null);
   const [{ isPending }] = usePayPalScriptReducer();
 
+  console.log('PayPalCheckoutButton rendered:', { 
+    invoiceData, 
+    isPending, 
+    isProcessing, 
+    isApproved, 
+    error 
+  });
+
 
   // Check if PayPal is configured
   if (!PAYPAL_CONFIG.CLIENT_ID || PAYPAL_CONFIG.CLIENT_ID === '') {

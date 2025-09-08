@@ -3,6 +3,12 @@ import { PAYPAL_CONFIG } from './paypal-config';
 
 // PayPal environment configuration
 export function getPayPalEnvironment() {
+  console.log('Creating PayPal environment with config:', {
+    mode: PAYPAL_CONFIG.MODE,
+    clientId: PAYPAL_CONFIG.CLIENT_ID ? 'SET' : 'NOT SET',
+    clientSecret: PAYPAL_CONFIG.CLIENT_SECRET ? 'SET' : 'NOT SET'
+  });
+
   if (PAYPAL_CONFIG.MODE === 'live') {
     return new checkoutNodeJssdk.core.LiveEnvironment(
       PAYPAL_CONFIG.CLIENT_ID,
@@ -18,9 +24,16 @@ export function getPayPalEnvironment() {
 
 // PayPal client instance
 export function getPayPalClient() {
-  const environment = getPayPalEnvironment();
-  const client = new checkoutNodeJssdk.core.PayPalHttpClient(environment);
-  return client;
+  console.log('Creating PayPal client...');
+  try {
+    const environment = getPayPalEnvironment();
+    const client = new checkoutNodeJssdk.core.PayPalHttpClient(environment);
+    console.log('PayPal client created successfully');
+    return client;
+  } catch (error) {
+    console.error('Error creating PayPal client:', error);
+    throw error;
+  }
 }
 
 // Create order request

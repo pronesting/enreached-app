@@ -3,11 +3,19 @@ import { getPayPalClient, createOrderRequest } from '@/lib/paypal';
 import { InvoiceData } from '@/types';
 
 export async function POST(request: NextRequest) {
+  console.log('PayPal create-order API: Starting request');
   try {
     const invoiceData: InvoiceData = await request.json();
+    console.log('PayPal create-order API: Invoice data received:', {
+      email: invoiceData.userDetails?.email,
+      totalAmount: invoiceData.totalAmount,
+      dataType: invoiceData.dataType,
+      recordCount: invoiceData.recordCount
+    });
     
     // Validate required fields
     if (!invoiceData.userDetails.email || !invoiceData.totalAmount) {
+      console.error('PayPal create-order API: Missing required fields');
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
@@ -16,7 +24,9 @@ export async function POST(request: NextRequest) {
 
     let client;
     try {
+      console.log('PayPal create-order API: Creating PayPal client...');
       client = getPayPalClient();
+      console.log('PayPal create-order API: PayPal client created successfully');
     } catch (clientError) {
       console.error('PayPal create-order API: Error creating client:', clientError);
       return NextResponse.json(

@@ -7,12 +7,16 @@ interface PayPalProviderProps {
   children: React.ReactNode;
 }
 
-// Move options outside component to prevent re-creation
+// Move options and error handler outside component to prevent re-creation
 const paypalOptions = {
   clientId: PAYPAL_CONFIG.CLIENT_ID,
   currency: 'USD',
   intent: 'capture',
   components: 'buttons',
+};
+
+const onError = (error: any) => {
+  console.error('PayPal SDK Error:', error);
 };
 
 export function PayPalProvider({ children }: PayPalProviderProps) {
@@ -23,10 +27,6 @@ export function PayPalProvider({ children }: PayPalProviderProps) {
     console.warn('PayPal Client ID not configured. Please update paypal-config.ts with your actual client ID.');
     return <>{children}</>;
   }
-
-  const onError = (error: any) => {
-    console.error('PayPal SDK Error:', error);
-  };
 
   console.log('PayPalProvider: Rendering PayPalScriptProvider');
   return (
