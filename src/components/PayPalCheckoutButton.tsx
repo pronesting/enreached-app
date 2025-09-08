@@ -136,7 +136,8 @@ export function PayPalCheckoutButton({
           <div className="space-y-1 text-xs">
             <p><span className="font-medium">Name:</span> {invoiceData.userDetails.firstName} {invoiceData.userDetails.lastName}</p>
             <p><span className="font-medium">Email:</span> {invoiceData.userDetails.email}</p>
-            <p><span className="font-medium">Company:</span> {invoiceData.userDetails.company}</p>
+            <p><span className="font-medium">Phone:</span> {invoiceData.userDetails.phone}</p>
+            <p><span className="font-medium">List:</span> {invoiceData.userDetails.listName}</p>
           </div>
         </div>
 
