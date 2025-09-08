@@ -98,23 +98,23 @@ export function PayPalCheckoutButton({
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="text-center">Complete Your Payment</CardTitle>
-        <p className="text-center text-sm text-gray-600">
+    <Card className="w-full max-w-xl mx-auto">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-center text-lg">Complete Your Payment</CardTitle>
+        <p className="text-center text-xs text-gray-600">
           Secure payment powered by PayPal
         </p>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4">
         {/* Order Summary */}
-        <div className="p-4 bg-gray-50 rounded-lg">
-          <h3 className="font-semibold text-lg mb-2">
+        <div className="p-3 bg-gray-50 rounded-lg">
+          <h3 className="font-semibold text-base mb-2">
             {invoiceData.dataType === 'emails' ? 'Email' : 'Phone'} Data Processing
           </h3>
-          <p className="text-sm text-gray-600 mb-3">
+          <p className="text-xs text-gray-600 mb-2">
             Processing {invoiceData.recordCount.toLocaleString()} {invoiceData.dataType} records
           </p>
-          <div className="space-y-2">
+          <div className="space-y-1 text-sm">
             <div className="flex justify-between">
               <span>Records:</span>
               <span>{invoiceData.recordCount.toLocaleString()}</span>
@@ -123,7 +123,7 @@ export function PayPalCheckoutButton({
               <span>Price per record:</span>
               <span>${invoiceData.pricePerRecord.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-lg font-bold border-t pt-2">
+            <div className="flex justify-between text-base font-bold border-t pt-1">
               <span>Total:</span>
               <span className="text-green-600">${invoiceData.totalAmount.toFixed(2)}</span>
             </div>
@@ -131,9 +131,9 @@ export function PayPalCheckoutButton({
         </div>
 
         {/* Customer Details */}
-        <div className="p-4 bg-blue-50 rounded-lg">
-          <h4 className="font-semibold text-blue-800 mb-2">Customer Information</h4>
-          <div className="space-y-1 text-sm">
+        <div className="p-3 bg-blue-50 rounded-lg">
+          <h4 className="font-semibold text-blue-800 mb-1 text-sm">Customer Information</h4>
+          <div className="space-y-1 text-xs">
             <p><span className="font-medium">Name:</span> {invoiceData.userDetails.firstName} {invoiceData.userDetails.lastName}</p>
             <p><span className="font-medium">Email:</span> {invoiceData.userDetails.email}</p>
             <p><span className="font-medium">Company:</span> {invoiceData.userDetails.company}</p>
@@ -156,24 +156,23 @@ export function PayPalCheckoutButton({
           <Button
             onClick={handlePayment}
             disabled={isProcessing}
-            className="w-full max-w-sm h-14 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+            className="w-full max-w-xs h-12 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
           >
             {isProcessing ? (
-              <Loader2 className="h-6 w-6 animate-spin mr-3" />
+              <Loader2 className="h-5 w-5 animate-spin mr-2" />
             ) : (
               <img 
                 src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" 
                 alt="PayPal" 
-                className="h-6 w-6 mr-3"
+                className="h-5 w-5 mr-2"
               />
             )}
             {isProcessing ? 'Processing...' : 'Pay with Credit Card'}
           </Button>
         </div>
 
-        <div className="text-xs text-gray-500 text-center space-y-1">
-          <p>🔒 Secure payment powered by PayPal</p>
-          <p>No PayPal account required - pay with any credit card</p>
+        <div className="text-xs text-gray-500 text-center">
+          <p>🔒 Secure payment powered by PayPal • No account required</p>
         </div>
       </CardContent>
     </Card>

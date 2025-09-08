@@ -227,21 +227,24 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <div className="flex-1">
-        <div className="container mx-auto px-6 py-12">
-          <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-12">
+    <div className="h-screen bg-white flex flex-col overflow-hidden">
+      {/* Main Content Area - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="container mx-auto px-4 py-6 h-full">
+          <div className="max-w-3xl mx-auto h-full flex flex-col">
+            {/* Header with Logo */}
+            <div className="text-center mb-6 flex-shrink-0">
               <img 
                 src="/Logo for enreached.svg" 
                 alt="ENRECHED Logo" 
-                className="mx-auto h-24 w-auto"
+                className="mx-auto h-16 w-auto"
               />
             </div>
 
+            {/* Progress Bar */}
             {currentStep !== 'success' && currentStep !== 'failed' && (
-              <div className="mb-12">
-                <div className="text-center text-sm text-gray-600 mb-4">
+              <div className="mb-6 flex-shrink-0">
+                <div className="text-center text-sm text-gray-600 mb-3">
                   <span>{STEPS[currentStepIndex]?.title}</span>
                 </div>
                 <Progress 
@@ -251,15 +254,20 @@ export default function Home() {
               </div>
             )}
 
-            <div className="space-y-8">
+            {/* Main Content - Flexible */}
+            <div className="flex-1 flex flex-col justify-center min-h-0">
               {renderCurrentStep()}
             </div>
           </div>
         </div>
       </div>
       
-      {/* Footer - only show on form steps */}
-      {currentStep !== 'success' && currentStep !== 'failed' && <Footer />}
+      {/* Footer - Fixed at bottom */}
+      {currentStep !== 'success' && currentStep !== 'failed' && (
+        <div className="flex-shrink-0">
+          <Footer />
+        </div>
+      )}
     </div>
   );
 }
