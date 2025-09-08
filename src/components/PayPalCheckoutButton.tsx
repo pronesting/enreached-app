@@ -5,7 +5,7 @@ import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { InvoiceData } from '@/types';
-import { env } from '@/lib/env';
+import { PAYPAL_CONFIG } from '@/lib/paypal-config';
 
 interface PayPalCheckoutButtonProps {
   invoiceData: InvoiceData;
@@ -24,7 +24,7 @@ export function PayPalCheckoutButton({
   const [{ isPending }] = usePayPalScriptReducer();
 
   // Check if PayPal is configured
-  if (!env.PAYPAL_CLIENT_ID || env.PAYPAL_CLIENT_ID === '') {
+  if (!PAYPAL_CONFIG.CLIENT_ID || PAYPAL_CONFIG.CLIENT_ID === '') {
     return (
       <Card className="w-full max-w-2xl mx-auto">
         <CardHeader>
