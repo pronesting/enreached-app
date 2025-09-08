@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPayPalClient, createCaptureRequest } from '@/lib/paypal';
+import { capturePayPalOrder } from '@/lib/paypal';
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,21 +12,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const client = getPayPalClient();
-    const captureRequest = createCaptureRequest(orderId);
-    const capture = await client.execute(captureRequest);
+    console.log('PayPal capture-order API: Capturing order:', orderId);
+    const capture = await capturePayPalOrder(orderId);
+    console.log('PayPal capture-order API: Order captured successfully');
 
     return NextResponse.json({
       success: true,
-      orderId: capture.result.id,
-      status: capture.result.status,
-      amount: capture.result.purchase_units?.[0]?.payments?.captures?.[0]?.amount,
+      orderId: capture.id,
+      status: capture.status,
+      amount: capture.purchase_units?.[0]?.payments?.captures?.[0]?.amount,
     });
 
   } catch (error) {
     console.error('PayPal order capture error:', error);
     return NextResponse.json(
-      { error: 'Failed to capture PayPal order' },
+      { error: 'Failed to capture PayPal order', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

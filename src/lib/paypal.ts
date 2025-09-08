@@ -1,43 +1,37 @@
-import { checkoutNodeJssdk } from '@paypal/checkout-server-sdk';
 import { PAYPAL_CONFIG } from './paypal-config';
 
-// PayPal environment configuration
-export function getPayPalEnvironment() {
-  console.log('Creating PayPal environment with config:', {
-    mode: PAYPAL_CONFIG.MODE,
-    clientId: PAYPAL_CONFIG.CLIENT_ID ? 'SET' : 'NOT SET',
-    clientSecret: PAYPAL_CONFIG.CLIENT_SECRET ? 'SET' : 'NOT SET'
+// PayPal API endpoints
+const PAYPAL_API_BASE = PAYPAL_CONFIG.MODE === 'live' 
+  ? 'https://api.paypal.com' 
+  : 'https://api.sandbox.paypal.com';
+
+// Get PayPal access token
+export async function getPayPalAccessToken(): Promise<string> {
+  console.log('Getting PayPal access token...');
+  
+  const auth = Buffer.from(`${PAYPAL_CONFIG.CLIENT_ID}:${PAYPAL_CONFIG.CLIENT_SECRET}`).toString('base64');
+  
+  const response = await fetch(`${PAYPAL_API_BASE}/v1/oauth2/token`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Basic ${auth}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+    body: 'grant_type=client_credentials',
   });
 
-  if (PAYPAL_CONFIG.MODE === 'live') {
-    return new checkoutNodeJssdk.core.LiveEnvironment(
-      PAYPAL_CONFIG.CLIENT_ID,
-      PAYPAL_CONFIG.CLIENT_SECRET
-    );
-  } else {
-    return new checkoutNodeJssdk.core.SandboxEnvironment(
-      PAYPAL_CONFIG.CLIENT_ID,
-      PAYPAL_CONFIG.CLIENT_SECRET
-    );
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to get PayPal access token: ${error}`);
   }
+
+  const data = await response.json();
+  console.log('PayPal access token obtained successfully');
+  return data.access_token;
 }
 
-// PayPal client instance
-export function getPayPalClient() {
-  console.log('Creating PayPal client...');
-  try {
-    const environment = getPayPalEnvironment();
-    const client = new checkoutNodeJssdk.core.PayPalHttpClient(environment);
-    console.log('PayPal client created successfully');
-    return client;
-  } catch (error) {
-    console.error('Error creating PayPal client:', error);
-    throw error;
-  }
-}
-
-// Create order request
-export function createOrderRequest(orderData: {
+// Create PayPal order
+export async function createPayPalOrder(orderData: {
   amount: string;
   currency: string;
   description: string;
@@ -45,9 +39,11 @@ export function createOrderRequest(orderData: {
   returnUrl: string;
   cancelUrl: string;
 }) {
-  const request = new checkoutNodeJssdk.orders.OrdersCreateRequest();
-  request.prefer('return=representation');
-  request.requestBody({
+  console.log('Creating PayPal order:', orderData);
+  
+  const accessToken = await getPayPalAccessToken();
+  
+  const orderPayload = {
     intent: 'CAPTURE',
     purchase_units: [
       {
@@ -66,13 +62,48 @@ export function createOrderRequest(orderData: {
       return_url: orderData.returnUrl,
       cancel_url: orderData.cancelUrl,
     },
+  };
+
+  const response = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+      'PayPal-Request-Id': orderData.customId,
+    },
+    body: JSON.stringify(orderPayload),
   });
-  return request;
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to create PayPal order: ${error}`);
+  }
+
+  const order = await response.json();
+  console.log('PayPal order created successfully:', order.id);
+  return order;
 }
 
-// Capture order request
-export function createCaptureRequest(orderId: string) {
-  const request = new checkoutNodeJssdk.orders.OrdersCaptureRequest(orderId);
-  request.prefer('return=representation');
-  return request;
+// Capture PayPal order
+export async function capturePayPalOrder(orderId: string) {
+  console.log('Capturing PayPal order:', orderId);
+  
+  const accessToken = await getPayPalAccessToken();
+  
+  const response = await fetch(`${PAYPAL_API_BASE}/v2/checkout/orders/${orderId}/capture`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`Failed to capture PayPal order: ${error}`);
+  }
+
+  const capture = await response.json();
+  console.log('PayPal order captured successfully');
+  return capture;
 }
