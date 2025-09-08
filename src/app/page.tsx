@@ -176,6 +176,7 @@ export default function Home() {
           />
         ) : null;
       case 'checkout':
+        console.log('Main page: Rendering checkout step', { invoiceData });
         return invoiceData ? (
           <CheckoutButton 
             invoiceData={invoiceData} 

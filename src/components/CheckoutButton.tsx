@@ -12,6 +12,8 @@ interface CheckoutButtonProps {
 export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps) {
   const [isCompleted, setIsCompleted] = useState(false);
 
+  console.log('CheckoutButton rendered:', { invoiceData, isCompleted });
+
   const handleSuccess = (orderId: string) => {
     console.log('Payment successful:', orderId);
     setIsCompleted(true);
@@ -23,9 +25,11 @@ export function CheckoutButton({ invoiceData, onCheckout }: CheckoutButtonProps)
   };
 
   if (isCompleted) {
+    console.log('CheckoutButton: Payment completed, returning null');
     return null; // Let the parent handle the success state
   }
 
+  console.log('CheckoutButton: Rendering PayPalCheckoutButton');
   return (
     <PayPalCheckoutButton
       invoiceData={invoiceData}
