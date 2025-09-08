@@ -16,7 +16,7 @@ export function InvoiceCard({ invoiceData, onCheckout, onBack, canGoBack }: Invo
   const { userDetails, dataType, recordCount, pricePerRecord, totalAmount } = invoiceData;
 
   return (
-    <div className="w-[calc(100%-20px)] sm:w-[600px] mx-auto space-y-6">
+    <div className="w-[calc(100%-10px)] sm:w-[600px] mx-auto space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="text-center flex items-center justify-center gap-2">
