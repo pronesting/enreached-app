@@ -2,15 +2,13 @@
 
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
 import { PAYPAL_CONFIG } from '@/lib/paypal-config';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 
 interface PayPalProviderProps {
   children: React.ReactNode;
 }
 
 export function PayPalProvider({ children }: PayPalProviderProps) {
-  console.log('PayPalProvider rendered with client ID:', PAYPAL_CONFIG.CLIENT_ID);
-  
   // Only load PayPal if we have a valid client ID
   if (!PAYPAL_CONFIG.CLIENT_ID || PAYPAL_CONFIG.CLIENT_ID === '') {
     console.warn('PayPal Client ID not configured. Please update paypal-config.ts with your actual client ID.');
@@ -24,11 +22,10 @@ export function PayPalProvider({ children }: PayPalProviderProps) {
     components: 'buttons',
   }), []);
 
-  const onError = useMemo(() => (error: any) => {
+  const onError = useCallback((error: any) => {
     console.error('PayPal SDK Error:', error);
   }, []);
 
-  console.log('PayPalProvider: Rendering PayPalScriptProvider');
   return (
     <PayPalScriptProvider options={paypalOptions} onError={onError}>
       {children}
