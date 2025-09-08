@@ -18,6 +18,11 @@ export function PayPalProvider({ children }: PayPalProviderProps) {
     // Check both server and client env vars
     SERVER_PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID ? 'SET' : 'NOT SET',
     CLIENT_PAYPAL_CLIENT_ID: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ? 'SET' : 'NOT SET',
+    // Raw values for debugging
+    RAW_PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID,
+    RAW_NEXT_PUBLIC_PAYPAL_CLIENT_ID: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
+    // All environment variables that start with PAYPAL
+    ALL_PAYPAL_VARS: Object.keys(process.env).filter(key => key.includes('PAYPAL')),
   });
 
   // Only load PayPal if we have a valid client ID
