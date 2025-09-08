@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -39,17 +39,17 @@ export default function Home() {
   const currentStepIndex = STEPS.findIndex(step => step.key === currentStep);
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100;
 
-  const handleUserDetailsSubmit = (details: UserDetails) => {
+  const handleUserDetailsSubmit = useCallback((details: UserDetails) => {
     setUserDetails(details);
     setCurrentStep('dataType');
-  };
+  }, []);
 
-  const handleDataTypeSelect = (type: DataType) => {
+  const handleDataTypeSelect = useCallback((type: DataType) => {
     setDataType(type);
     setCurrentStep('upload');
-  };
+  }, []);
 
-  const handleCsvUpload = (data: CsvData) => {
+  const handleCsvUpload = useCallback((data: CsvData) => {
     setCsvData(data);
     const totalAmount = data.recordCount * PRICE_PER_RECORD;
     setInvoiceData({
@@ -60,15 +60,15 @@ export default function Home() {
       totalAmount,
     });
     setCurrentStep('review');
-  };
+  }, [userDetails, dataType]);
 
-  const handleCheckout = () => {
+  const handleCheckout = useCallback(() => {
     setCurrentStep('checkout');
     // The CheckoutButton component will handle the PayPal payment process
     // and redirect to success page after payment
-  };
+  }, []);
 
-  const goToPreviousStep = () => {
+  const goToPreviousStep = useCallback(() => {
     switch (currentStep) {
       case 'dataType':
         setCurrentStep('details');
@@ -85,9 +85,9 @@ export default function Home() {
       default:
         break;
     }
-  };
+  }, [currentStep]);
 
-  const goToNextStep = () => {
+  const goToNextStep = useCallback(() => {
     switch (currentStep) {
       case 'details':
         if (userDetails.firstName && userDetails.lastName && userDetails.email && userDetails.phone && userDetails.listName) {
@@ -116,13 +116,13 @@ export default function Home() {
       default:
         break;
     }
-  };
+  }, [currentStep, userDetails, dataType, csvData]);
 
-  const canGoBack = () => {
+  const canGoBack = useCallback(() => {
     return ['dataType', 'upload', 'review', 'checkout'].includes(currentStep);
-  };
+  }, [currentStep]);
 
-  const canGoForward = () => {
+  const canGoForward = useCallback(() => {
     switch (currentStep) {
       case 'details':
         return userDetails.firstName && userDetails.lastName && userDetails.email && userDetails.phone && userDetails.listName;
@@ -135,7 +135,7 @@ export default function Home() {
       default:
         return false;
     }
-  };
+  }, [currentStep, userDetails, csvData]);
 
   const renderCurrentStep = () => {
     switch (currentStep) {
