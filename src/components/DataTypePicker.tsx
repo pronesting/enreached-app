@@ -51,7 +51,7 @@ export function DataTypePicker({ onSelect, selectedType, onBack, canGoBack }: Da
 
   return (
     <>
-      <Card className="w-full max-w-lg mx-auto shadow-lg">
+      <Card className="w-full max-w-4xl mx-auto shadow-lg">
         <CardHeader className="pb-6">
           <CardTitle className="text-center text-xl text-gray-800">Choose Data Type</CardTitle>
           <p className="text-center text-sm text-gray-600 mt-2">

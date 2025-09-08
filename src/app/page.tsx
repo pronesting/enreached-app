@@ -230,7 +230,7 @@ export default function Home() {
       {/* Main Content Area - Fixed height to fit viewport */}
       <div className="flex-1 flex flex-col justify-between min-h-0">
         <div className="container mx-auto px-4 py-4 flex-1 flex flex-col">
-          <div className="max-w-4xl mx-auto flex-1 flex flex-col">
+          <div className="max-w-6xl mx-auto flex-1 flex flex-col">
             {/* Header with Logo - Compact */}
             <div className="text-center mb-3 sm:mb-4 flex-shrink-0">
               <img 
