@@ -5,6 +5,6 @@ interface PayPalProviderProps {
 }
 
 export function PayPalProvider({ children }: PayPalProviderProps) {
-  console.log('PayPalProvider: Using direct PayPal integration (no SDK)');
+  // Using direct PayPal integration (no SDK)
   return <>{children}</>;
 }

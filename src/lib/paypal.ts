@@ -66,16 +66,12 @@ export async function createPayPalOrder(orderData: {
         description: orderData.description,
       },
     ],
-    payment_source: {
-      paypal: {
-        experience_context: {
-          brand_name: 'Enreached',
-          landing_page: 'BILLING',
-          user_action: 'PAY_NOW',
-          return_url: orderData.returnUrl,
-          cancel_url: orderData.cancelUrl,
-        }
-      }
+    application_context: {
+      brand_name: 'Enreached',
+      landing_page: 'BILLING',
+      user_action: 'PAY_NOW',
+      return_url: orderData.returnUrl,
+      cancel_url: orderData.cancelUrl,
     }
   };
 
