@@ -15,6 +15,9 @@ export function PayPalProvider({ children }: PayPalProviderProps) {
     PAYPAL_MODE: env.PAYPAL_MODE,
     NODE_ENV: process.env.NODE_ENV,
     VERCEL: process.env.VERCEL,
+    // Check both server and client env vars
+    SERVER_PAYPAL_CLIENT_ID: process.env.PAYPAL_CLIENT_ID ? 'SET' : 'NOT SET',
+    CLIENT_PAYPAL_CLIENT_ID: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ? 'SET' : 'NOT SET',
   });
 
   // Only load PayPal if we have a valid client ID
