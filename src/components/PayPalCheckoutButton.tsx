@@ -100,10 +100,14 @@ export function PayPalCheckoutButton({
   return (
     <Card className="w-full max-w-xl mx-auto">
       <CardHeader className="pb-4">
-        <CardTitle className="text-center text-lg">Complete Your Payment</CardTitle>
-        <p className="text-center text-xs text-gray-600">
-          Secure payment powered by PayPal
-        </p>
+        <CardTitle className="text-center text-lg font-semibold text-gray-800">Complete Your Payment</CardTitle>
+        <div className="flex items-center justify-center gap-2 mt-2">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-blue-600">
+            <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.543-.676c-.608-.624-1.47-1.01-2.53-1.01H9.342a.641.641 0 0 0-.633.74l1.12 7.106c.082.518.526.9 1.05.9h2.19c4.298 0 7.664-1.747 8.647-6.797.03-.149.054-.294.077-.437.292-1.867-.002-3.137-1.012-4.287z"/>
+            <path d="M17.73 6.24c.292-1.867-.002-3.137-1.012-4.287C15.608.327 13.6-.216 11.03-.216H3.57a.641.641 0 0 0-.633.74L4.944 20.597c.082.518.526.9 1.05.9h4.606L17.73 6.24z"/>
+          </svg>
+          <span className="text-sm text-gray-600 font-medium">Powered by PayPal</span>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Order Summary */}
@@ -154,26 +158,57 @@ export function PayPalCheckoutButton({
 
         {/* PayPal Button */}
         <div className="flex justify-center">
-          <Button
+          <button
             onClick={handlePayment}
             disabled={isProcessing}
-            className="w-full max-w-xs h-12 bg-blue-600 hover:bg-blue-700 text-white text-base font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200"
+            className="w-full max-w-sm h-14 bg-[#0070ba] hover:bg-[#005ea6] disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center gap-3 px-6"
+            style={{
+              background: isProcessing 
+                ? '#6c757d' 
+                : 'linear-gradient(135deg, #0070ba 0%, #005ea6 100%)',
+              boxShadow: '0 4px 8px rgba(0, 112, 186, 0.3)',
+            }}
           >
             {isProcessing ? (
-              <Loader2 className="h-5 w-5 animate-spin mr-2" />
+              <Loader2 className="h-6 w-6 animate-spin" />
             ) : (
-              <img 
-                src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" 
-                alt="PayPal" 
-                className="h-5 w-5 mr-2"
-              />
+              <>
+                <div className="flex items-center gap-2">
+                  <svg 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path 
+                      d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.543-.676c-.608-.624-1.47-1.01-2.53-1.01H9.342a.641.641 0 0 0-.633.74l1.12 7.106c.082.518.526.9 1.05.9h2.19c4.298 0 7.664-1.747 8.647-6.797.03-.149.054-.294.077-.437.292-1.867-.002-3.137-1.012-4.287z" 
+                      fill="currentColor"
+                    />
+                    <path 
+                      d="M17.73 6.24c.292-1.867-.002-3.137-1.012-4.287C15.608.327 13.6-.216 11.03-.216H3.57a.641.641 0 0 0-.633.74L4.944 20.597c.082.518.526.9 1.05.9h4.606L17.73 6.24z" 
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <span className="text-lg font-bold">PayPal</span>
+                </div>
+                <div className="text-sm opacity-90">
+                  {isProcessing ? 'Processing...' : 'Pay with PayPal'}
+                </div>
+              </>
             )}
-            {isProcessing ? 'Processing...' : 'Pay with Credit Card'}
-          </Button>
+          </button>
         </div>
 
-        <div className="text-xs text-gray-500 text-center">
-          <p>🔒 Secure payment powered by PayPal • No account required</p>
+        <div className="text-xs text-gray-500 text-center mt-3">
+          <div className="flex items-center justify-center gap-2">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/>
+            </svg>
+            <span>Secured by PayPal</span>
+            <span>•</span>
+            <span>No PayPal account required</span>
+          </div>
         </div>
       </CardContent>
     </Card>
