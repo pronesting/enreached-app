@@ -24,6 +24,7 @@ export function PayPalCheckoutButton({
 }: PayPalCheckoutButtonProps) {
   const [isApproved, setIsApproved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isMinimumPrice = invoiceData.recordCount < 100;
 
   console.log('PayPalCheckoutButton rendered:', { 
     invoiceData, 
@@ -155,6 +156,17 @@ export function PayPalCheckoutButton({
               <span>Price per record:</span>
               <span>${invoiceData.pricePerRecord.toFixed(2)}</span>
             </div>
+            {isMinimumPrice && (
+              <div className="flex justify-between">
+                <span>Calculated amount:</span>
+                <span>${(invoiceData.recordCount * invoiceData.pricePerRecord).toFixed(2)}</span>
+              </div>
+            )}
+            {isMinimumPrice && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 text-xs text-yellow-800">
+                <strong>Minimum Order:</strong> Orders with less than 100 records are charged a minimum of $15.00
+              </div>
+            )}
             <div className="flex justify-between text-base font-bold border-t pt-2">
               <span>Total:</span>
               <span className="text-green-600">${invoiceData.totalAmount.toFixed(2)}</span>

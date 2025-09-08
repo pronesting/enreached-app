@@ -21,7 +21,14 @@ const STEPS: { key: Step; title: string; description: string }[] = [
   { key: 'checkout', title: 'Approve Order', description: 'Approve and request invoice' },
 ];
 
-const PRICE_PER_RECORD = 0.25;
+const PRICE_PER_RECORD = 0.15;
+const MINIMUM_PRICE = 15.00;
+const MINIMUM_RECORDS = 100;
+
+const calculateTotalAmount = (recordCount: number) => {
+  const calculatedAmount = recordCount * PRICE_PER_RECORD;
+  return recordCount < MINIMUM_RECORDS ? MINIMUM_PRICE : calculatedAmount;
+};
 
 export default function Home() {
   const [currentStep, setCurrentStep] = useState<Step>('details');
@@ -50,7 +57,7 @@ export default function Home() {
 
   const handleCsvUpload = useCallback((data: CsvData) => {
     setCsvData(data);
-    const totalAmount = data.recordCount * PRICE_PER_RECORD;
+    const totalAmount = calculateTotalAmount(data.recordCount);
     setInvoiceData({
       userDetails,
       dataType,
@@ -98,7 +105,7 @@ export default function Home() {
         break;
       case 'upload':
         if (csvData) {
-          const totalAmount = csvData.recordCount * PRICE_PER_RECORD;
+          const totalAmount = calculateTotalAmount(csvData.recordCount);
           setInvoiceData({
             userDetails,
             dataType,
