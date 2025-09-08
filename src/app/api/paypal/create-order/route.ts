@@ -4,20 +4,32 @@ import { InvoiceData } from '@/types';
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('PayPal create-order API: Starting request');
+    
     const invoiceData: InvoiceData = await request.json();
+    console.log('PayPal create-order API: Received invoice data:', {
+      email: invoiceData.userDetails?.email,
+      totalAmount: invoiceData.totalAmount,
+      dataType: invoiceData.dataType,
+      recordCount: invoiceData.recordCount
+    });
     
     // Validate required fields
     if (!invoiceData.userDetails.email || !invoiceData.totalAmount) {
+      console.log('PayPal create-order API: Missing required fields');
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
+    console.log('PayPal create-order API: Getting PayPal client');
     const client = getPayPalClient();
+    console.log('PayPal create-order API: PayPal client created successfully');
     
     // Generate unique order ID
     const customId = `enreached_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    console.log('PayPal create-order API: Generated custom ID:', customId);
     
     // Create order data
     const orderData = {
@@ -28,9 +40,13 @@ export async function POST(request: NextRequest) {
       returnUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/success?orderId={ORDER_ID}`,
       cancelUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/failed`,
     };
+    console.log('PayPal create-order API: Order data:', orderData);
 
+    console.log('PayPal create-order API: Creating order request');
     const orderRequest = createOrderRequest(orderData);
+    console.log('PayPal create-order API: Executing order request');
     const order = await client.execute(orderRequest);
+    console.log('PayPal create-order API: Order created successfully:', order.result.id);
 
     // Store order data for later reference (in a real app, you'd store this in a database)
     const orderInfo = {
@@ -49,8 +65,13 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('PayPal order creation error:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    });
     return NextResponse.json(
-      { error: 'Failed to create PayPal order' },
+      { error: 'Failed to create PayPal order', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }

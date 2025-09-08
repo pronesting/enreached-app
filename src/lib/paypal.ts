@@ -3,12 +3,20 @@ import { PAYPAL_CONFIG } from './paypal-config';
 
 // PayPal environment configuration
 export function getPayPalEnvironment() {
+  console.log('PayPal lib: Creating environment with config:', {
+    mode: PAYPAL_CONFIG.MODE,
+    clientId: PAYPAL_CONFIG.CLIENT_ID ? `${PAYPAL_CONFIG.CLIENT_ID.substring(0, 10)}...` : 'NOT SET',
+    clientSecret: PAYPAL_CONFIG.CLIENT_SECRET ? `${PAYPAL_CONFIG.CLIENT_SECRET.substring(0, 10)}...` : 'NOT SET'
+  });
+  
   if (PAYPAL_CONFIG.MODE === 'live') {
+    console.log('PayPal lib: Creating LiveEnvironment');
     return new checkoutNodeJssdk.core.LiveEnvironment(
       PAYPAL_CONFIG.CLIENT_ID,
       PAYPAL_CONFIG.CLIENT_SECRET
     );
   } else {
+    console.log('PayPal lib: Creating SandboxEnvironment');
     return new checkoutNodeJssdk.core.SandboxEnvironment(
       PAYPAL_CONFIG.CLIENT_ID,
       PAYPAL_CONFIG.CLIENT_SECRET
@@ -18,8 +26,12 @@ export function getPayPalEnvironment() {
 
 // PayPal client instance
 export function getPayPalClient() {
+  console.log('PayPal lib: Getting PayPal client');
   const environment = getPayPalEnvironment();
-  return new checkoutNodeJssdk.core.PayPalHttpClient(environment);
+  console.log('PayPal lib: Environment created, creating HTTP client');
+  const client = new checkoutNodeJssdk.core.PayPalHttpClient(environment);
+  console.log('PayPal lib: HTTP client created successfully');
+  return client;
 }
 
 // Create order request
