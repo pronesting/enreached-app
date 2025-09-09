@@ -73,7 +73,8 @@ export function PayPalCheckoutButton({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          orderId: data.orderID
+          orderId: data.orderID,
+          invoiceData: invoiceData
         }),
       });
 

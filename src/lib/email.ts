@@ -2,7 +2,11 @@ import { Resend } from 'resend';
 
 export async function sendOrderConfirmationEmail(data) {
   try {
-    console.log('Sending confirmation email to:', data.userDetails.email);
+    console.log('=== EMAIL SERVICE DEBUG ===');
+    console.log('Data received:', JSON.stringify(data, null, 2));
+    console.log('User email:', data.userDetails?.email);
+    console.log('API key available:', !!process.env.RESEND_API_KEY);
+    console.log('API key length:', process.env.RESEND_API_KEY?.length || 0);
     
     // Check if API key is available
     if (!process.env.RESEND_API_KEY) {
