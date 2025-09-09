@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { capturePayPalOrder } from '@/lib/paypal';
-import { sendOrderConfirmationEmail } from '@/lib/email';
 
 export async function POST(request: NextRequest) {
   try {
-    const { orderId, invoiceData } = await request.json();
+    const { orderId } = await request.json();
     
     if (!orderId) {
       return NextResponse.json(
@@ -16,21 +15,6 @@ export async function POST(request: NextRequest) {
     console.log('PayPal capture-order API: Capturing order:', orderId);
     const capture = await capturePayPalOrder(orderId);
     console.log('PayPal capture-order API: Order captured successfully');
-
-    // Send confirmation email if invoice data is provided
-    if (invoiceData && invoiceData.userDetails?.email) {
-      try {
-        console.log('Sending confirmation email to:', invoiceData.userDetails.email);
-        await sendOrderConfirmationEmail({
-          ...invoiceData,
-          orderId: capture.id
-        });
-        console.log('Confirmation email sent successfully');
-      } catch (emailError) {
-        console.error('Failed to send confirmation email:', emailError);
-        // Don't fail the payment if email fails
-      }
-    }
 
     return NextResponse.json({
       success: true,
