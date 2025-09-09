@@ -2,25 +2,19 @@ import { Resend } from 'resend';
 
 export async function sendOrderConfirmationEmail(data) {
   try {
-    console.log('=== EMAIL SERVICE DEBUG ===');
-    console.log('Data received:', JSON.stringify(data, null, 2));
-    console.log('User email:', data.userDetails?.email);
-    console.log('API key available:', !!process.env.RESEND_API_KEY);
-    console.log('API key length:', process.env.RESEND_API_KEY?.length || 0);
+    console.log('Sending confirmation email to:', data.userDetails.email);
     
-    // Check if API key is available
     if (!process.env.RESEND_API_KEY) {
       console.warn('RESEND_API_KEY not found, skipping email send');
       return { success: false, error: 'API key not configured' };
     }
     
-    // Initialize Resend client only when needed
     const resend = new Resend(process.env.RESEND_API_KEY);
     
     const result = await resend.emails.send({
       from: 'Enreached <hello@enreached.co>',
       to: [data.userDetails.email],
-      cc: ['hello@enreached.co'],
+      bcc: ['hello@enreached.co'],
       subject: `Order Confirmation - ${data.recordCount.toLocaleString()} ${data.dataType} records`,
       html: generateEmailHTML(data),
       text: generateEmailText(data)
