@@ -177,17 +177,17 @@ export function CsvUploader({ onUpload, dataType, onBack, canGoBack }: CsvUpload
 
   return (
     <Card className="w-[calc(100%-10px)] sm:w-[600px] mx-auto">
-      <CardHeader>
+      <CardHeader className="px-4 sm:px-6">
         <CardTitle className="text-center">Upload CSV File</CardTitle>
         <p className="text-center text-sm text-gray-600">
           Upload your {dataType} data file for processing
         </p>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 px-4 sm:px-6">
         {!recordCount ? (
           <div className="space-y-4">
             <div
-              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+              className={`border-2 border-dashed rounded-lg p-4 sm:p-8 text-center transition-colors ${
                 isDragOver 
                   ? 'border-black bg-gray-50' 
                   : 'border-gray-300 hover:border-gray-400'
@@ -196,14 +196,15 @@ export function CsvUploader({ onUpload, dataType, onBack, canGoBack }: CsvUpload
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
             >
-              <Upload className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Drop your CSV file here</h3>
-              <p className="text-gray-600 mb-4">or click to browse</p>
+              <Upload className="h-8 w-8 sm:h-12 sm:w-12 mx-auto text-gray-400 mb-3 sm:mb-4" />
+              <h3 className="text-base sm:text-lg font-semibold mb-2">Drop your CSV file here</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-3 sm:mb-4">or click to browse</p>
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isProcessing}
+                className="h-10 sm:h-11 px-4 sm:px-6"
               >
                 {isProcessing ? 'Processing...' : 'Choose File'}
               </Button>
