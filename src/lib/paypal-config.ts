@@ -1,6 +1,6 @@
-// PayPal configuration for sandbox testing
+// PayPal configuration for production
 export const PAYPAL_CONFIG = {
-  CLIENT_ID: 'AQGsQhJRwr1kg3f--v-COgHxZoTNDW02-ytS87TWXTITJiFm5O5jvWvPwl3XEtl_nLTK6uTmvJlhp8b-',
-  CLIENT_SECRET: 'EObsmKxXBa6atJrm7UUSi_RUxzHdZXV87Ie0XFqpmBNTLHQJC3bKuzmwtXo9LfpNB10CncNJqIFqFOOa',
-  MODE: 'sandbox',
+  CLIENT_ID: 'AbQgiaHfIICmBuNlKMrKmeA6vy8Af0IqNeYA85QTxatjanEfTThPcMGovI38LvtqeNKr71BYCsEEZJpw',
+  CLIENT_SECRET: 'EHUn6_074MMOtzcCev27bCQF0eNywUzCBuaAusntCwPC-UiYveodR9pl6FXpnAb0EQpbENHRPOeDMbph',
+  MODE: 'live',
 } as const;
