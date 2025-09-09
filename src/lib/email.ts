@@ -1,10 +1,17 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function sendOrderConfirmationEmail(data) {
   try {
     console.log('Sending confirmation email to:', data.userDetails.email);
+    
+    // Check if API key is available
+    if (!process.env.RESEND_API_KEY) {
+      console.warn('RESEND_API_KEY not found, skipping email send');
+      return { success: false, error: 'API key not configured' };
+    }
+    
+    // Initialize Resend client only when needed
+    const resend = new Resend(process.env.RESEND_API_KEY);
     
     const result = await resend.emails.send({
       from: 'Enreached <hello@enreached.co>',
