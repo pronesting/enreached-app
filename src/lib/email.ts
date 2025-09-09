@@ -18,11 +18,22 @@ export async function sendOrderConfirmationEmail(data) {
     const resend = new Resend(process.env.RESEND_API_KEY);
     
     const result = await resend.emails.send({
-      from: 'Enreached <hello@enreached.co>',
+      from: 'Enreached <onboarding@resend.dev>',
       to: [data.userDetails.email],
       subject: `Order Confirmation - ${data.recordCount.toLocaleString()} ${data.dataType} records`,
       html: generateEmailHTML(data),
-      text: generateEmailText(data)
+      text: generateEmailText(data),
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'high'
+      },
+      tags: [
+        {
+          name: 'category',
+          value: 'order-confirmation'
+        }
+      ]
     });
 
     console.log('Email sent successfully:', result);
