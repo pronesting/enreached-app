@@ -17,7 +17,6 @@ const paypalOptions = {
   dataSdkIntegrationSource: 'integrationbuilder_ac',
   debug: false, // Disable debug mode to reduce console noise
   locale: 'en_US', // Set specific locale to avoid 404 errors
-  buyerCountry: 'US', // Set buyer country to reduce warnings
 };
 
 export function PayPalProvider({ children }: PayPalProviderProps) {
