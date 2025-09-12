@@ -7,7 +7,6 @@ interface PayPalProviderProps {
   children: React.ReactNode;
 }
 
-// PayPal options for production
 const paypalOptions = {
   clientId: PAYPAL_CONFIG.CLIENT_ID,
   currency: 'USD',
