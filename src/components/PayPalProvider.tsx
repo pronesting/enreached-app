@@ -11,7 +11,7 @@ const paypalOptions = {
   clientId: PAYPAL_CONFIG.CLIENT_ID,
   currency: 'USD',
   intent: 'capture',
-  components: 'buttons,marks', // Keep 'marks' since it's being used in the app
+  components: 'buttons,marks,messages', // Keep all components since they're being used in the app
   enableFunding: 'card,venmo,paylater',
   disableFunding: 'credit',
   dataSdkIntegrationSource: 'integrationbuilder_ac',
