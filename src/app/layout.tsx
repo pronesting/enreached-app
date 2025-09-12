@@ -5,6 +5,25 @@ import { PayPalProvider } from '@/components/PayPalProvider';
 import { EnvDebug } from '@/components/EnvDebug';
 import { Hotjar } from '@/components/Hotjar';
 
+// Suppress PayPal console warnings in development
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  const originalWarn = console.warn;
+  console.warn = (...args) => {
+    const message = args[0];
+    if (typeof message === 'string') {
+      // Suppress specific PayPal warnings
+      if (
+        message.includes('global_session_not_found') ||
+        message.includes('paypal_messages_content_unavailable') ||
+        message.includes('using deprecated parameters')
+      ) {
+        return;
+      }
+    }
+    originalWarn.apply(console, args);
+  };
+}
+
 const urbanist = Urbanist({
   variable: "--font-urbanist",
   subsets: ["latin"],
