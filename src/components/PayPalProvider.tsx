@@ -11,10 +11,11 @@ const paypalOptions = {
   clientId: PAYPAL_CONFIG.CLIENT_ID,
   currency: 'USD',
   intent: 'capture',
-  components: 'buttons,marks,messages',
+  components: 'buttons', // Remove 'marks,messages' to reduce warnings
   enableFunding: 'card,venmo,paylater',
   disableFunding: 'credit',
   dataSdkIntegrationSource: 'integrationbuilder_ac',
+  debug: false, // Disable debug mode to reduce console noise
 };
 
 export function PayPalProvider({ children }: PayPalProviderProps) {
